@@ -88,6 +88,7 @@ public abstract class ScalarFunctionsTestBase {
      * </p>
      *
      * @return the fully qualified name of the table in the virtual schema.
+     * @throws SQLException if creation failed
      */
     protected abstract SingleTableVirtualSchemaTestSetup createVirtualSchemaTableWithExamplesForAllDataTypes()
             throws SQLException;

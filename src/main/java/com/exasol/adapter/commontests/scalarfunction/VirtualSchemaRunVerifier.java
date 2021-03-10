@@ -34,8 +34,10 @@ public class VirtualSchemaRunVerifier {
     /**
      * Assert that the function behaves same on the virtual schema as it died on the Exasol table.
      *
+     * @param function     scalar function to test
      * @param runsOnExasol Exasol runs (parameter - result pairs) to compare to
      * @param statement    statement to use.
+     * @return List of successful parameter combinations
      */
     public List<String> assertFunctionBehavesSameOnVirtualSchema(final String function,
             final List<ExasolRun> runsOnExasol, final Statement statement) {
