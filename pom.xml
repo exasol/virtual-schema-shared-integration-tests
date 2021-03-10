@@ -40,7 +40,7 @@
         <connection>scm:git:https://github.com/exasol/virtual-schema-shared-integration-tests.git</connection>
         <developerConnection>scm:git:https://github.com/exasol/virtual-schema-shared-integration-tests.git
         </developerConnection>
-        <url>https://github.com/exasol/virtual-schema-shared-integration-tests/tree/master</url>
+        <url>https://github.com/exasol/virtual-schema-shared-integration-tests/tree/main</url>
     </scm>
     <distributionManagement>
         <snapshotRepository>
@@ -236,8 +236,6 @@
                             <goal>report-integration</goal>
                         </goals>
                     </execution>
-
-
                 </executions>
             </plugin>
             <plugin>
@@ -251,8 +249,6 @@
                     <includes>
                         <include>**IT.java</include>
                     </includes>
-                    <systemPropertyVariables>
-
                     </systemPropertyVariables>
                 </configuration>
                 <executions>

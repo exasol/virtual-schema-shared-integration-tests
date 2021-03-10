@@ -6,10 +6,9 @@ import java.util.*;
 import com.exasol.errorreporting.ExaError;
 
 /**
- * This class provides a set of scalar functions, supported by the exasol database.
+ * This class provides a set of scalar functions, supported by the Exasol database.
  */
 public class ScalarFunctionProvider {
-
     /**
      * Get scalar functions supported by the Exasol database.
      * 

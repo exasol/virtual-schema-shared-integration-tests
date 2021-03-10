@@ -12,11 +12,11 @@ class ExasolRun {
         this.result = result;
     }
 
-    public String getParameters() {
+    String getParameters() {
         return this.parameters;
     }
 
-    public Object getResult() {
+    Object getResult() {
         return this.result;
     }
 }

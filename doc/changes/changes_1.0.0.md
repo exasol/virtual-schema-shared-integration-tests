@@ -2,7 +2,7 @@
 
 ## Features
 
-* #1: Move abstract scalar functions integration tests from postgresql-virtual-schema
+* #1: Implemented scalar functions integration tests for Virtual Schemas
 
 ## Dependency Updates
 

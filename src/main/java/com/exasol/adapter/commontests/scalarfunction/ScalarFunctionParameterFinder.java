@@ -8,15 +8,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * This class searches for parameter combinations that do not cause an exception on a local exasol table.
+ * This class searches for parameter combinations that do not cause an exception during the execution of scalar functions on a local Exasol table.
  */
 public class ScalarFunctionParameterFinder {
-
     private static final ScalarFunctionCallBuilder FUNCTION_CALL_BUILDER = new ScalarFunctionCallBuilder();
     private static final Logger LOGGER = Logger.getLogger(ScalarFunctionParameterFinder.class.getName());
     private static final int MAX_NUM_PARAMETERS = 4;
     /**
-     * One list for each level of parameters, that contains a list of parameter permutations. Each parameter permutation
+     * One list for each level of parameters, that contains a list of parameter combinations. Each parameter combination
      * is a string with comma separated parameters.
      */
     private final List<List<String>> parameterCombinations;

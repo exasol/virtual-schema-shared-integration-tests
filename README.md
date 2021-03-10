@@ -5,7 +5,7 @@
 
 This repository contains abstract integration tests for Exasol Virtual Schemas.
 
-The basic idea of these tests is to check if a function behaves same on a table of a Virtual Schema than on a regular Exasol table.
+The tests check that Exasol functions behave in the same way on a Virtual Schema table and on a regular Exasol table.
 
 ## Additional Information
 
