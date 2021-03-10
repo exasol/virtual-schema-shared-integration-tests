@@ -40,14 +40,14 @@ public class VirtualSchemaRunVerifier {
      * @return List of successful parameter combinations
      */
     public List<String> assertFunctionBehavesSameOnVirtualSchema(final String function,
-            final List<ExasolRun> runsOnExasol, final Statement statement) {
+            final List<ScalarFunctionLocalRun> runsOnExasol, final Statement statement) {
         final List<String> successParameters = new ArrayList<>();
         final List<String> failedQueries = new ArrayList<>();
-        for (final ExasolRun exasolRun : runsOnExasol) {
-            final String virtualSchemaQuery = this.virtualSchemaQueryBuilder
-                    .buildQueryFor(CALL_BUILDER.buildFunctionCall(function, exasolRun.getParameters()));
-            assertSingleRunBehavesSameOnVirtualSchema(statement, successParameters, failedQueries, exasolRun,
-                    virtualSchemaQuery);
+        for (final ScalarFunctionLocalRun scalarFunctionLocalRun : runsOnExasol) {
+            final String virtualSchemaQuery = this.virtualSchemaQueryBuilder.buildQueryFor(
+                    CALL_BUILDER.buildScalarFunctionCall(function, scalarFunctionLocalRun.getParameters()));
+            assertSingleRunBehavesSameOnVirtualSchema(statement, successParameters, failedQueries,
+                    scalarFunctionLocalRun, virtualSchemaQuery);
         }
         if (successParameters.isEmpty()) {
             fail(ExaError.messageBuilder("E-VS-SIT-5").message(
@@ -58,12 +58,12 @@ public class VirtualSchemaRunVerifier {
     }
 
     private void assertSingleRunBehavesSameOnVirtualSchema(final Statement statement,
-            final List<String> successParameters, final List<String> failedQueries, final ExasolRun exasolRun,
-            final String virtualSchemaQuery) {
+            final List<String> successParameters, final List<String> failedQueries,
+            final ScalarFunctionLocalRun scalarFunctionLocalRun, final String virtualSchemaQuery) {
         try (final ResultSet actualResult = statement.executeQuery(virtualSchemaQuery)) {
             // check if the results are equal; Otherwise abort - wrong results are unacceptable
             try {
-                assertThat(actualResult, table().row(buildMatcher(exasolRun.getResult())).matches());
+                assertThat(actualResult, table().row(buildMatcher(scalarFunctionLocalRun.getResult())).matches());
             } catch (final AssertionError assertionError) {
                 throw new IllegalStateException(
                         ExaError.messageBuilder("E-VS-SIT-6").message("Different output for query {{query}}")
@@ -71,7 +71,7 @@ public class VirtualSchemaRunVerifier {
                         assertionError);
             }
 
-            successParameters.add(exasolRun.getParameters());
+            successParameters.add(scalarFunctionLocalRun.getParameters());
         } catch (final SQLException exception) {
             failedQueries.add(virtualSchemaQuery);
             // ignore; probably just a strange parameter combination
@@ -93,18 +93,17 @@ public class VirtualSchemaRunVerifier {
      *           be queried in a singel query.
      * @return {@code true} if all parameter combinations behaved same. {@code false} otherwise
      */
-    boolean quickCheckIfFunctionBehavesSameOnVs(final String function, final List<ExasolRun> runsOnExasol,
+    boolean quickCheckIfFunctionBehavesSameOnVs(final String function, final List<ScalarFunctionLocalRun> runsOnExasol,
             final Statement statement) {
         for (int batchNr = 0; batchNr * BATCH_SIZE < runsOnExasol.size(); batchNr++) {
-            final List<ExasolRun> batch = runsOnExasol.subList(batchNr * BATCH_SIZE,
+            final List<ScalarFunctionLocalRun> batch = runsOnExasol.subList(batchNr * BATCH_SIZE,
                     Math.min(runsOnExasol.size(), (batchNr + 1) * BATCH_SIZE));
             final String selectList = batch.stream()
-                    .map(run -> CALL_BUILDER.buildFunctionCall(function, run.getParameters()))
+                    .map(run -> CALL_BUILDER.buildScalarFunctionCall(function, run.getParameters()))
                     .collect(Collectors.joining(", "));
             final String virtualSchemaQuery = this.virtualSchemaQueryBuilder.buildQueryFor(selectList);
             try (final ResultSet actualResult = statement.executeQuery(virtualSchemaQuery)) {
-                if (!table().row(batch.stream().map(ExasolRun::getResult).map(this::buildMatcher).toArray()).matches()
-                        .matches(actualResult)) {
+                if (!buildResultMatcher(batch).matches(actualResult)) {
                     return false;
                 }
                 LOGGER.log(Level.FINE, "Quick check query was successful: {0}", virtualSchemaQuery);
@@ -114,6 +113,11 @@ public class VirtualSchemaRunVerifier {
         }
         LOGGER.fine("Quick check was successful");
         return true;
+    }
+
+    private Matcher<ResultSet> buildResultMatcher(final List<ScalarFunctionLocalRun> batch) {
+        return table().row(batch.stream().map(ScalarFunctionLocalRun::getResult).map(this::buildMatcher).toArray())
+                .matches();
     }
 
     private Matcher<Object> buildMatcher(final Object object) {

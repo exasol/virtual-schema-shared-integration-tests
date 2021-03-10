@@ -38,7 +38,7 @@ import com.exasol.matcher.TypeMatchMode;
 @Execution(value = ExecutionMode.CONCURRENT)
 public abstract class ScalarFunctionsTestBase {
     /**
-     * These have a special syntax, so we define explicit test for them below.
+     * These scalar functions have a special syntax, so we define explicit test for them below.
      */
     private static final Set<String> EXCLUDED_SCALAR_FUNCTIONS = Set.of("case", "cast", "float_div",
             "session_parameter", "rand", "random", "add", "sub", "mult", "neg", "sys_guid", "systimestamp",
@@ -205,22 +205,24 @@ public abstract class ScalarFunctionsTestBase {
         @MethodSource("getScalarFunctions")
         void testScalarFunctions(final String function) {
             runOnExasol(statement -> {
-                final List<ExasolRun> successfulExasolRuns = this.parameterFinder.findOrGetFittingParameters(function,
-                        statement);
-                if (successfulExasolRuns.isEmpty()) {
+                final List<ScalarFunctionLocalRun> successfulScalarFunctionLocalRuns = this.parameterFinder
+                        .findOrGetFittingParameters(function, statement);
+                if (successfulScalarFunctionLocalRuns.isEmpty()) {
                     throw new IllegalStateException(ExaError.messageBuilder("E-VS-SIT-2")
                             .message("Non of the parameter combinations lead to a successful run.").toString());
                 } else {
                     this.parameterCache.removeFunction(function);
                     if (!this.virtualSchemaRunVerifier.quickCheckIfFunctionBehavesSameOnVs(function,
-                            successfulExasolRuns, statement)) {
+                            successfulScalarFunctionLocalRuns, statement)) {
                         LOGGER.log(Level.FINE, "Quick test failed for {0}. Running full checks.", function);
                         final List<String> successfulParameters = this.virtualSchemaRunVerifier
-                                .assertFunctionBehavesSameOnVirtualSchema(function, successfulExasolRuns, statement);
+                                .assertFunctionBehavesSameOnVirtualSchema(function, successfulScalarFunctionLocalRuns,
+                                        statement);
                         this.parameterCache.setFunctionsValidParameterCombinations(function, successfulParameters);
                     } else {
-                        this.parameterCache.setFunctionsValidParameterCombinations(function, successfulExasolRuns
-                                .stream().map(ExasolRun::getParameters).collect(Collectors.toList()));
+                        this.parameterCache.setFunctionsValidParameterCombinations(function,
+                                successfulScalarFunctionLocalRuns.stream().map(ScalarFunctionLocalRun::getParameters)
+                                        .collect(Collectors.toList()));
                     }
                     this.parameterCache.flush();
                 }

@@ -14,8 +14,12 @@ import com.exasol.dbbuilder.dialects.Schema;
 import com.exasol.dbbuilder.dialects.Table;
 import com.exasol.dbbuilder.dialects.exasol.ExasolObjectFactory;
 
+/**
+ * This class is a test for {@link ScalarFunctionsTestBase}. It implements a Virtual Schema dialect that does not use a
+ * virtual schema but directly returns the Exasol table.
+ */
 @Testcontainers
-public class NoVsStub extends ScalarFunctionsTestBase {
+public class ScalarFunctionsTestBaseIT extends ScalarFunctionsTestBase {
     @Container
     private static final ExasolContainer<? extends ExasolContainer<?>> CONTAINER = new ExasolContainer<>()
             .withReuse(true);
@@ -41,7 +45,7 @@ public class NoVsStub extends ScalarFunctionsTestBase {
     @Override
     protected SingleTableVirtualSchemaTestSetup createVirtualSchemaTableWithExamplesForAllDataTypes()
             throws SQLException {
-        return new MySingleTableVirtualSchemaTestSetup() {
+        return new ExasolNativeSingleTableVirtualSchemaTestSetup() {
             @Override
             protected Table createTable() {
                 return this.getSchema().createTableBuilder(getUniqueIdentifier())//
@@ -90,7 +94,7 @@ public class NoVsStub extends ScalarFunctionsTestBase {
     }
 
     private <T> SingleRowSingleTableVirtualSchemaTestSetup<T> createTestTable(final String type) {
-        return new SingleRowMySingleTableVirtualSchemaTestSetup<>() {
+        return new SingleRowExasolNativeSingleTableVirtualSchemaTestSetup<>() {
             @Override
             protected Table createTable() {
                 return this.getSchema().createTableBuilder(getUniqueIdentifier())//
@@ -99,11 +103,12 @@ public class NoVsStub extends ScalarFunctionsTestBase {
         };
     }
 
-    private static abstract class MySingleTableVirtualSchemaTestSetup implements SingleTableVirtualSchemaTestSetup {
+    private static abstract class ExasolNativeSingleTableVirtualSchemaTestSetup
+            implements SingleTableVirtualSchemaTestSetup {
         private final Table table;
         private final Schema schema;
 
-        public MySingleTableVirtualSchemaTestSetup() {
+        public ExasolNativeSingleTableVirtualSchemaTestSetup() {
             this.schema = exasolObjectFactory.createSchema(getUniqueIdentifier());
             this.table = createTable();
         }
@@ -130,8 +135,8 @@ public class NoVsStub extends ScalarFunctionsTestBase {
         }
     }
 
-    private static abstract class SingleRowMySingleTableVirtualSchemaTestSetup<T>
-            extends MySingleTableVirtualSchemaTestSetup implements SingleRowSingleTableVirtualSchemaTestSetup<T> {
+    private static abstract class SingleRowExasolNativeSingleTableVirtualSchemaTestSetup<T> extends
+            ExasolNativeSingleTableVirtualSchemaTestSetup implements SingleRowSingleTableVirtualSchemaTestSetup<T> {
 
         @Override
         public void truncateTable() throws SQLException {

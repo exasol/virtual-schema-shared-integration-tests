@@ -19,12 +19,7 @@ public class ScalarFunctionProvider {
         try (final Statement statement = exasolConnection.createStatement();
                 final ResultSet resultSet = statement.executeQuery(
                         "SELECT PARAM_VALUE FROM EXA_METADATA WHERE PARAM_NAME IN('timeDateFunctions', 'stringFunctions', 'systemFunctions', 'numericFunctions', 'SQL92StringFunctions','SQL92NumericValueFunctions')")) {
-            final Set<String> functions = new HashSet<>();
-            while (resultSet.next()) {
-                functions.addAll(Arrays.asList(resultSet.getString(1).split(",")));
-            }
-            renameSomeFunctions(functions);
-            return functions;
+            return parseScalarFunctions(resultSet);
         } catch (final SQLException exception) {
             throw new IllegalStateException(ExaError.messageBuilder("F-VS-SIT-7")
                     .message("Failed to fetch list of scalar functions from the exasol database.").ticketMitigation()
@@ -32,7 +27,21 @@ public class ScalarFunctionProvider {
         }
     }
 
-    private void renameSomeFunctions(final Set<String> functions) {
+    private Set<String> parseScalarFunctions(final ResultSet resultSet) throws SQLException {
+        final Set<String> functions = new HashSet<>();
+        while (resultSet.next()) {
+            functions.addAll(Arrays.asList(resultSet.getString(1).split(",")));
+        }
+        correctFunctionNames(functions);
+        return functions;
+    }
+
+    /**
+     * For some reasons some functions art listed with a wrong name in the meta-table. In this method we correct this.
+     * 
+     * @param functions set of functions to correct
+     */
+    private void correctFunctionNames(final Set<String> functions) {
         functions.remove("trimLeading");
         functions.add("ltrim");
         functions.remove("trimBoth");

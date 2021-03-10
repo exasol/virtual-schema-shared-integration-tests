@@ -2,13 +2,15 @@ package com.exasol.adapter.commontests.scalarfunction;
 
 import java.sql.*;
 import java.util.*;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * This class searches for parameter combinations that do not cause an exception during the execution of scalar functions on a local Exasol table.
+ * This class searches for parameter combinations that do not cause an exception during the execution of scalar
+ * functions on a local Exasol table.
  */
 public class ScalarFunctionParameterFinder {
     private static final ScalarFunctionCallBuilder FUNCTION_CALL_BUILDER = new ScalarFunctionCallBuilder();
@@ -18,13 +20,20 @@ public class ScalarFunctionParameterFinder {
      * One list for each level of parameters, that contains a list of parameter combinations. Each parameter combination
      * is a string with comma separated parameters.
      */
-    private final List<List<String>> parameterCombinations;
+    private final List<List<String>> parameterCombinationsCache;
     private final ScalarFunctionQueryBuilder localQueryBuilder;
     private final ScalarFunctionsParameterCache parameterCache;
 
+    /**
+     * Create a new instance of {@link ScalarFunctionParameterFinder}.
+     * 
+     * @param availableColumns  list of available columns in the test table
+     * @param localQueryBuilder query builder that builds queries on a regular Exasol table
+     * @param parameterCache    disc cache for the parameters
+     */
     public ScalarFunctionParameterFinder(final Collection<String> availableColumns,
             final ScalarFunctionQueryBuilder localQueryBuilder, final ScalarFunctionsParameterCache parameterCache) {
-        this.parameterCombinations = generateParameterCombinations(availableColumns);
+        this.parameterCombinationsCache = generateParameterCombinations(availableColumns);
         this.localQueryBuilder = localQueryBuilder;
         this.parameterCache = parameterCache;
     }
@@ -39,14 +48,23 @@ public class ScalarFunctionParameterFinder {
         combinations.add(List.of(""));
         for (int numParameters = 1; numParameters <= MAX_NUM_PARAMETERS; numParameters++) {
             final List<String> previousIterationParameters = combinations.get(numParameters - 1);
-            combinations.add(previousIterationParameters.stream().flatMap(smallerCombination -> //
-            availableColumns.stream().map(literal -> joinWithCommaIfNecessary(smallerCombination, literal))//
-            ).collect(Collectors.toList()));
+            combinations.add(generateCombination(availableColumns, previousIterationParameters));
         }
         return combinations;
     }
 
-    private static String joinWithCommaIfNecessary(final String smallerCombination, final String literal) {
+    private static List<String> generateCombination(final Collection<String> availableColumns,
+            final List<String> previousIterationParameters) {
+        return previousIterationParameters.stream()//
+                .flatMap(addPermutation(availableColumns)).collect(Collectors.toList());
+    }
+
+    private static Function<String, Stream<? extends String>> addPermutation(
+            final Collection<String> availableColumns) {
+        return smallerCombination -> availableColumns.stream().map(literal -> join(smallerCombination, literal));
+    }
+
+    private static String join(final String smallerCombination, final String literal) {
         if (smallerCombination.isEmpty() || literal.isEmpty()) {
             return smallerCombination + literal;
         } else {
@@ -54,7 +72,18 @@ public class ScalarFunctionParameterFinder {
         }
     }
 
-    public List<ExasolRun> findOrGetFittingParameters(final String function, final Statement statement) {
+    /**
+     * Find parameter combinations for a scalar function that do not throw an exception on a regular exasol table.
+     * <p>
+     * If the disc cache contains combinations for this scalar function, this method only returns these. This is an
+     * performance optimization, since the cache only contains the runs, that lead to a success on the last run.
+     * </p>
+     * 
+     * @param function  scalar function
+     * @param statement connection to the exasol database
+     * @return list of successful executions
+     */
+    public List<ScalarFunctionLocalRun> findOrGetFittingParameters(final String function, final Statement statement) {
         if (this.parameterCache.hasParametersForFunction(function)) {
             LOGGER.log(Level.FINE, "Using parameters from parameter cache for function {0}.", function);
             return findFittingParameters(function,
@@ -77,10 +106,10 @@ public class ScalarFunctionParameterFinder {
      * @param statement exasol statement
      * @return list of successful runs
      */
-    private List<ExasolRun> findFittingParameters(final String function, final Statement statement) {
+    private List<ScalarFunctionLocalRun> findFittingParameters(final String function, final Statement statement) {
         final int fastThreshold = 3; // with three parameters the search is still fast; with 4 it gets slow
-        final List<List<String>> fastCombinationLists = this.parameterCombinations.subList(0, fastThreshold + 1);
-        final List<ExasolRun> fastParameters = findFittingParameters(function,
+        final List<List<String>> fastCombinationLists = this.parameterCombinationsCache.subList(0, fastThreshold + 1);
+        final List<ScalarFunctionLocalRun> fastParameters = findFittingParameters(function,
                 fastCombinationLists.stream().flatMap(Collection::stream), statement);
         if (!fastParameters.isEmpty()) {
             return fastParameters;
@@ -89,11 +118,11 @@ public class ScalarFunctionParameterFinder {
         }
     }
 
-    private List<ExasolRun> findCostyFittingParameters(final String function, final Statement statement,
+    private List<ScalarFunctionLocalRun> findCostyFittingParameters(final String function, final Statement statement,
             final int fastThreshold) {
         for (int numParameters = fastThreshold + 1; numParameters <= MAX_NUM_PARAMETERS; numParameters++) {
-            final List<ExasolRun> result = findFittingParameters(function,
-                    this.parameterCombinations.get(numParameters).stream(), statement);
+            final List<ScalarFunctionLocalRun> result = findFittingParameters(function,
+                    this.parameterCombinationsCache.get(numParameters).stream(), statement);
             if (!result.isEmpty()) {
                 return result;
             }
@@ -101,19 +130,20 @@ public class ScalarFunctionParameterFinder {
         return Collections.emptyList();
     }
 
-    private List<ExasolRun> findFittingParameters(final String function, final Stream<String> possibleParameters,
-            final Statement statement) {
+    private List<ScalarFunctionLocalRun> findFittingParameters(final String function,
+            final Stream<String> possibleParameters, final Statement statement) {
         return possibleParameters
                 .map(parameterCombination -> this.runFunctionOnExasol(function, parameterCombination, statement))
                 .filter(Objects::nonNull).collect(Collectors.toList());
     }
 
-    private ExasolRun runFunctionOnExasol(final String function, final String parameters, final Statement statement) {
-        final String functionCall = FUNCTION_CALL_BUILDER.buildFunctionCall(function, parameters);
+    private ScalarFunctionLocalRun runFunctionOnExasol(final String function, final String parameters,
+            final Statement statement) {
+        final String functionCall = FUNCTION_CALL_BUILDER.buildScalarFunctionCall(function, parameters);
         try (final ResultSet expectedResult = statement
                 .executeQuery(this.localQueryBuilder.buildQueryFor(functionCall))) {
             expectedResult.next();
-            return new ExasolRun(parameters, expectedResult.getObject(1));
+            return new ScalarFunctionLocalRun(parameters, expectedResult.getObject(1));
         } catch (final SQLException exception) {
             return null;
         }
