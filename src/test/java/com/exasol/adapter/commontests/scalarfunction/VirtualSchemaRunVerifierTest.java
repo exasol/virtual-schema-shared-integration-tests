@@ -58,16 +58,16 @@ class VirtualSchemaRunVerifierTest {
                 Arguments.of("testWithFailingFunction", "FAILING_FUNCTION", getSingleRunListWith("*", 0), false));
     }
 
-    private static List<ScalarFunctionLocalRun> getMultipleRunsWith(final String parameters, final int result) {
-        return List.of(new ScalarFunctionLocalRun(parameters, result), new ScalarFunctionLocalRun(parameters, result));
-    }
-
     private static List<ScalarFunctionLocalRun> getSingleRunListWith(final String parameters, final Object result) {
         return List.of(getRunWith(parameters, result));
     }
 
     private static ScalarFunctionLocalRun getRunWith(final String parameters, final Object result) {
         return new ScalarFunctionLocalRun(parameters, result);
+    }
+
+    private static List<ScalarFunctionLocalRun> getMultipleRunsWith(final String parameters, final int result) {
+        return List.of(getRunWith(parameters, result), getRunWith(parameters, result));
     }
 
     @ParameterizedTest
