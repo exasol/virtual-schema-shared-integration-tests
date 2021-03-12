@@ -46,7 +46,7 @@ class VirtualSchemaRunVerifierTest {
         this.statement.execute("DROP TABLE " + TABLE_NAME);
     }
 
-    static Stream<Arguments> quickCheckIfFunctionBehavesSameOnVstestCases() {
+    private static Stream<Arguments> quickCheckIfFunctionBehavesSameOnVstestCases() {
         return Stream.of(//
                 Arguments.of("testWithEmptyRuns", "COUNT", Collections.emptyList(), true), //
                 Arguments.of("testWithSingleSuccesfulRun", "COUNT", getSingleRunListWith("*", 0), true), //
