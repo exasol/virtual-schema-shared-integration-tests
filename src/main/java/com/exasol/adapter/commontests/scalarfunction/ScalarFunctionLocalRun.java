@@ -9,7 +9,7 @@ class ScalarFunctionLocalRun {
 
     /**
      * Create a new instance of {@link ScalarFunctionLocalRun}.
-     * 
+     *
      * @param parameters parameters that were passed to the scalar function
      * @param result     result of the scalar function run
      */
@@ -20,7 +20,7 @@ class ScalarFunctionLocalRun {
 
     /**
      * Get the parameters that were passed to the scalar function
-     * 
+     *
      * @return string containing the parameters
      */
     String getParameters() {
@@ -29,10 +29,15 @@ class ScalarFunctionLocalRun {
 
     /**
      * Get the result of the scalar function run
-     * 
+     *
      * @return result
      */
     Object getResult() {
         return this.result;
+    }
+
+    @Override
+    public String toString() {
+        return "ScalarFunctionLocalRun [parameters=" + this.parameters + ", result=" + this.result + "]";
     }
 }

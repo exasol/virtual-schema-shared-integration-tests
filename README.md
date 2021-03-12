@@ -29,6 +29,8 @@ This project requires a Java Runtime version 11 or later.
 | Dependency                                                                          | Purpose                                                | License                       |
 |-------------------------------------------------------------------------------------|--------------------------------------------------------|-------------------------------|
 | [Exasol Testcontainers][exasol-testcontainers]                                      | Exasol extension for the Testcontainers framework      | MIT License                   |
+| [Apache Derby](https://db.apache.org/derby/)                                        | Integration tests against real JDBC result sets        | Apache License 2.0            |
+| [Mockito](http://site.mockito.org/)                                                 | Mocking framework                                      | MIT License                   |
 
 ### Build Dependencies
 

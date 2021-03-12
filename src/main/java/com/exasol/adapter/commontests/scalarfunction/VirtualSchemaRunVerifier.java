@@ -95,7 +95,7 @@ public class VirtualSchemaRunVerifier {
      */
     boolean quickCheckIfFunctionBehavesSameOnVs(final String function, final List<ScalarFunctionLocalRun> runsOnExasol,
             final Statement statement) {
-        for (int batchNr = 0; batchNr * BATCH_SIZE < runsOnExasol.size(); batchNr++) {
+        for (int batchNr = 0; (batchNr * BATCH_SIZE) < runsOnExasol.size(); batchNr++) {
             final List<ScalarFunctionLocalRun> batch = runsOnExasol.subList(batchNr * BATCH_SIZE,
                     Math.min(runsOnExasol.size(), (batchNr + 1) * BATCH_SIZE));
             final String selectList = batch.stream()
