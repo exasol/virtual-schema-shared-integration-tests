@@ -5,6 +5,7 @@ Code name: Initial release
 ## Features
 
 * #1: Implemented scalar functions integration tests for Virtual Schemas
+* #2: Added unit test for `VirtualSchemaRunVerifier`
 
 ## Dependency Updates
 
@@ -21,6 +22,8 @@ Code name: Initial release
 * Added `com.exasol:exasol-testcontainers:3.5.1`
 * Added `com.exasol:test-db-builder-java:3.1.0`
 * Added `org.testcontainers:junit-jupiter:1.15.2`
+* Added `org.mockito:mockito-junit-jupiter:3.5.13`
+* Added `org.apache.derby:derby:10.15.2.0`
 
 ### Plugin Dependency Updates
 
