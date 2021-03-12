@@ -8,7 +8,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -21,11 +22,15 @@ class VirtualSchemaRunVerifierTest {
 
     @BeforeEach
     void beforeEach() throws SQLException {
-        final ScalarFunctionQueryBuilder virtualSchemaQueryBuilder = new ScalarFunctionQueryBuilder(TABLE_NAME);
         this.connection = DriverManager.getConnection("jdbc:derby:memory:test;create=true");
         this.statement = this.connection.createStatement();
-        this.virtualSchemaRunVerifier = new VirtualSchemaRunVerifier(virtualSchemaQueryBuilder);
+        this.virtualSchemaRunVerifier = this.createVirtualSchemaRunVerifier();
         this.createTestTable();
+    }
+
+    private VirtualSchemaRunVerifier createVirtualSchemaRunVerifier() {
+        final ScalarFunctionQueryBuilder virtualSchemaQueryBuilder = new ScalarFunctionQueryBuilder(TABLE_NAME);
+        return new VirtualSchemaRunVerifier(virtualSchemaQueryBuilder);
     }
 
     private void createTestTable() throws SQLException {
@@ -34,7 +39,7 @@ class VirtualSchemaRunVerifierTest {
 
     @AfterEach
     void afterEach() throws SQLException {
-        dropTestTable();
+        this.dropTestTable();
     }
 
     private void dropTestTable() throws SQLException {
@@ -49,7 +54,8 @@ class VirtualSchemaRunVerifierTest {
                 Arguments.of("testWithMultipleSuccesfulRuns", "COUNT", getMultipleRunsWith("*", 0), true), //
                 Arguments.of("testWithMultipleFailingRuns", "COUNT", getMultipleRunsWith("*", 1), false), //
                 Arguments.of("testWithMultipleRunsOneFailingAndOneSuccessful", "COUNT",
-                        List.of(getRunWith("*", 0), getRunWith("*", 1)), false));
+                        List.of(getRunWith("*", 0), getRunWith("*", 1)), false), //
+                Arguments.of("testWithFailingFunction", "FAILING_FUNCTION", getSingleRunListWith("*", 0), false));
     }
 
     private static List<ScalarFunctionLocalRun> getMultipleRunsWith(final String parameters, final int result) {
@@ -71,13 +77,5 @@ class VirtualSchemaRunVerifierTest {
         final boolean value = this.virtualSchemaRunVerifier.quickCheckIfFunctionBehavesSameOnVs(function, runs,
                 this.statement);
         assertThat(testCase, value, equalTo(result));
-    }
-
-    @Test
-    void testQuickCheckIfFunctionBehavesSameOnVsWithFailingQuery() throws SQLException {
-        final List<ScalarFunctionLocalRun> runs = VirtualSchemaRunVerifierTest.getSingleRunListWith("*", 0);
-        final boolean value = this.virtualSchemaRunVerifier.quickCheckIfFunctionBehavesSameOnVs("FAILING_FUNCTION",
-                runs, this.statement);
-        assertThat(value, equalTo(false));
     }
 }
