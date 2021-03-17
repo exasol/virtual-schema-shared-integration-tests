@@ -5,7 +5,7 @@ Code name: Initial release
 ## Features
 
 * #1: Implemented scalar functions integration tests for Virtual Schemas
-* #2: Added unit test for `VirtualSchemaRunVerifier`
+* #4: Added unit test for `VirtualSchemaRunVerifier`
 
 ## Dependency Updates
 
