@@ -1,4 +1,4 @@
-# virtual-schema-shared-integration-tests 1.0.0, released 2021-??-??
+# virtual-schema-shared-integration-tests 1.0.0, released 2021-03-17
 
 Code name: Initial release
 
