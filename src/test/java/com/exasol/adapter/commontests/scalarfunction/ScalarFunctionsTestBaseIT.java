@@ -70,7 +70,8 @@ public class ScalarFunctionsTestBaseIT extends ScalarFunctionsTestBase
     }
 
     @Override
-    public VirtualSchemaTestSetup createSingleTableVirtualSchemaTestSetup(final VirtualSchemaTestSetupRequest request) {
+    public VirtualSchemaTestSetup createSingleTableVirtualSchemaTestSetup(
+            final CreateVirtualSchemaTestSetupRequest request) {
         final ExasolSchema schema = exasolObjectFactory.createSchema(getUniqueIdentifier());
         for (final TableRequest tableRequest : request.getTableRequests()) {
             final Table table = buildTable(schema, tableRequest);

@@ -23,8 +23,8 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.*;
 
+import com.exasol.adapter.commontests.scalarfunction.virtualschematestsetup.CreateVirtualSchemaTestSetupRequest;
 import com.exasol.adapter.commontests.scalarfunction.virtualschematestsetup.VirtualSchemaTestSetup;
-import com.exasol.adapter.commontests.scalarfunction.virtualschematestsetup.VirtualSchemaTestSetupRequest;
 import com.exasol.adapter.commontests.scalarfunction.virtualschematestsetup.request.Column;
 import com.exasol.adapter.commontests.scalarfunction.virtualschematestsetup.request.TableRequest;
 import com.exasol.adapter.metadata.DataType;
@@ -57,7 +57,6 @@ public abstract class ScalarFunctionsTestBase {
             "json_value", "extract", "posix_time", "greatest", "now", "position");
     private static final String LOCAL_COPY_TABLE_NAME = "LOCAL_COPY";
     private static final String LOCAL_COPY_SCHEMA = "EXASOL";
-    private TestSetup testSetupCache;
     private static final String LOCAL_COPY_FULL_TABLE_NAME = LOCAL_COPY_SCHEMA + "." + LOCAL_COPY_TABLE_NAME;
 
     /**
@@ -82,14 +81,16 @@ public abstract class ScalarFunctionsTestBase {
         return FUNCTIONS_WITH_NO_PARENTHESIS.stream().map(Arguments::of);
     }
 
+    /**
+     * Get an test setup for testing this dialect.
+     * <p>
+     * The abstract base will call this method multiple times. Please return the same instance (typically this) for all
+     * invocation.
+     * </p>
+     * 
+     * @return test setup
+     */
     protected abstract TestSetup getTestSetup();
-
-    synchronized TestSetup getCachedTestSetup() {
-        if (this.testSetupCache == null) {
-            this.testSetupCache = getTestSetup();
-        }
-        return this.testSetupCache;
-    }
 
     private List<String> getColumnsOfTable(final String tableName) {
         final List<String> names = new ArrayList<>();
@@ -106,7 +107,7 @@ public abstract class ScalarFunctionsTestBase {
     }
 
     private void runOnExasol(final ExasolExecutable exasolExecutable) {
-        try (final Connection connection = getCachedTestSetup().createExasolConnection();
+        try (final Connection connection = getTestSetup().createExasolConnection();
                 final Statement statement = connection.createStatement()) {
             exasolExecutable.runOnExasol(statement);
         } catch (final SQLException exception) {
@@ -129,7 +130,7 @@ public abstract class ScalarFunctionsTestBase {
      * @return {@code true} if test is disabled by dialect
      */
     private boolean isTestDisabledFor(final String function) {
-        final Set<String> dialectSpecificExcludes = getCachedTestSetup().getDialectSpecificExcludes();
+        final Set<String> dialectSpecificExcludes = getTestSetup().getDialectSpecificExcludes();
         if (dialectSpecificExcludes.contains(function.toLowerCase())) {
             LOGGER.log(Level.FINE, "Skipping test for {0} since it was disabled for this dialect.", function);
             return true;
@@ -139,14 +140,14 @@ public abstract class ScalarFunctionsTestBase {
 
     private VirtualSchemaTestSetup buildVirtualSchemaTableWithColumnOfExasolType(final DataType exasolType,
             final Object valueForSingleRow) {
-        final String booleanType = getCachedTestSetup().getDataTypeThatThisAdapterMapsTo(exasolType);
-        final VirtualSchemaTestSetupRequest request = new VirtualSchemaTestSetupRequest(TableRequest.builder("MY_TABLE")
-                .column(MY_COLUMN, booleanType).row(List.of(valueForSingleRow)).build());
+        final String booleanType = getTestSetup().getDataTypeThatThisAdapterMapsTo(exasolType);
+        final CreateVirtualSchemaTestSetupRequest request = new CreateVirtualSchemaTestSetupRequest(TableRequest
+                .builder("MY_TABLE").column(MY_COLUMN, booleanType).row(List.of(valueForSingleRow)).build());
         return getTestSetup().getVirtualSchemaTestSetupProvider().createSingleTableVirtualSchemaTestSetup(request);
     }
 
     /**
-     * This test tests functions that do not have parenthesis (e.g. CURRENT_SCHEMA).
+     * This test case is for functions that do not have parenthesis (e.g. CURRENT_SCHEMA).
      * <p>
      * Since the result of all of this functions is different on different databases or at different time, we just test
      * that they don't throw an exception on the Virtual Schema.
@@ -494,7 +495,7 @@ public abstract class ScalarFunctionsTestBase {
 
         @BeforeAll
         void beforeAll() {
-            this.virtualSchemaTestSetup = createTableWithExampleValues();
+            this.virtualSchemaTestSetup = createVirtualSchemaTestSetup();
             runOnExasol(statement -> {
                 statement.executeUpdate("CREATE SCHEMA " + LOCAL_COPY_SCHEMA);
                 final String testTable = this.virtualSchemaTestSetup.getFullyQualifiedName() + ".\"" + MY_TABLE + "\"";
@@ -508,18 +509,17 @@ public abstract class ScalarFunctionsTestBase {
             });
         }
 
-        private VirtualSchemaTestSetup createTableWithExampleValues() {
+        private VirtualSchemaTestSetup createVirtualSchemaTestSetup() {
             final List<Column> columns = this.DATA_TYPES_WITH_EXAMPLES.stream()
                     .map(dataTypeWithExampleValue -> new Column(dataTypeWithExampleValue.getExasolDataType().toString(),
-                            getCachedTestSetup()
+                            getTestSetup()
                                     .getDataTypeThatThisAdapterMapsTo(dataTypeWithExampleValue.getExasolDataType())))
                     .collect(Collectors.toList());
             final List<Object> rowWithExampleValues = this.DATA_TYPES_WITH_EXAMPLES.stream()
                     .map(DataTypeWithExampleValue::getExampleValue).collect(Collectors.toList());
-            final VirtualSchemaTestSetupRequest request = new VirtualSchemaTestSetupRequest(
+            final CreateVirtualSchemaTestSetupRequest request = new CreateVirtualSchemaTestSetupRequest(
                     TableRequest.builder(MY_TABLE).columns(columns).row(rowWithExampleValues).build());
-            return getCachedTestSetup().getVirtualSchemaTestSetupProvider()
-                    .createSingleTableVirtualSchemaTestSetup(request);
+            return getTestSetup().getVirtualSchemaTestSetupProvider().createSingleTableVirtualSchemaTestSetup(request);
         }
 
         @AfterAll
@@ -563,7 +563,7 @@ public abstract class ScalarFunctionsTestBase {
         }
 
         Stream<Arguments> getScalarFunctions() {
-            try (final Connection exasolConnection = getCachedTestSetup().createExasolConnection()) {
+            try (final Connection exasolConnection = getTestSetup().createExasolConnection()) {
                 return new ScalarFunctionProvider().getScalarFunctions(exasolConnection).stream()//
                         .filter(function -> !EXCLUDED_SCALAR_FUNCTIONS.contains(function)
                                 && !isTestDisabledFor(function) && !FUNCTIONS_WITH_NO_PARENTHESIS.contains(function))//

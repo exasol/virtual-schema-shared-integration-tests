@@ -13,7 +13,7 @@ import com.exasol.adapter.commontests.scalarfunction.virtualschematestsetup.requ
  * possible to check if a certain test setup was already created.
  * </p>
  */
-public class VirtualSchemaTestSetupRequest {
+public class CreateVirtualSchemaTestSetupRequest {
     private final List<TableRequest> tableRequests;
 
     /**
@@ -21,7 +21,7 @@ public class VirtualSchemaTestSetupRequest {
      *
      * @param tableRequests description how the tables should be created
      */
-    public VirtualSchemaTestSetupRequest(final List<TableRequest> tableRequests) {
+    public CreateVirtualSchemaTestSetupRequest(final List<TableRequest> tableRequests) {
         this.tableRequests = tableRequests;
     }
 
@@ -30,7 +30,7 @@ public class VirtualSchemaTestSetupRequest {
      * 
      * @param tableRequests description how the tables should be created
      */
-    public VirtualSchemaTestSetupRequest(final TableRequest... tableRequests) {
+    public CreateVirtualSchemaTestSetupRequest(final TableRequest... tableRequests) {
         this(Arrays.asList(tableRequests));
     }
 
