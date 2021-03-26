@@ -42,6 +42,7 @@ import com.exasol.matcher.TypeMatchMode;
 @Execution(value = ExecutionMode.CONCURRENT)
 public abstract class ScalarFunctionsTestBase {
     private static final String MY_COLUMN = "MY_COLUMN";
+    private static final String MY_TABLE = "MY_TABLE";
     /**
      * These functions are tested separately in {@link testFunctionsWithNoParenthesis(String)} )}
      */
@@ -73,11 +74,11 @@ public abstract class ScalarFunctionsTestBase {
      */
     protected static String getUniqueIdentifier() {
         final Instant now = Instant.now();
-        final int randomPart = (int) (Math.random() * 1000);
+        final int randomPart = new Random().nextInt();
         return "id" + now.getEpochSecond() + now.getNano() + randomPart;
     }
 
-    private static Stream<Arguments> getScalarFunctionWithNoParameters() {
+    static Stream<Arguments> getScalarFunctionWithNoParameters() {
         return FUNCTIONS_WITH_NO_PARENTHESIS.stream().map(Arguments::of);
     }
 
@@ -91,20 +92,6 @@ public abstract class ScalarFunctionsTestBase {
      * @return test setup
      */
     protected abstract TestSetup getTestSetup();
-
-    private List<String> getColumnsOfTable(final String tableName) {
-        final List<String> names = new ArrayList<>();
-        runOnExasol(statement -> {
-            try (final ResultSet resultSet = statement.executeQuery("SELECT * FROM " + tableName)) {
-                final ResultSetMetaData metaData = resultSet.getMetaData();
-                final int columnCount = metaData.getColumnCount();
-                for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
-                    names.add("\"" + metaData.getColumnName(columnIndex) + "\"");
-                }
-            }
-        });
-        return names;
-    }
 
     private void runOnExasol(final ExasolExecutable exasolExecutable) {
         try (final Connection connection = getTestSetup().createExasolConnection();
@@ -141,8 +128,8 @@ public abstract class ScalarFunctionsTestBase {
     private VirtualSchemaTestSetup buildVirtualSchemaTableWithColumnOfExasolType(final DataType exasolType,
             final Object valueForSingleRow) {
         final String booleanType = getTestSetup().getDataTypeThatThisAdapterMapsTo(exasolType);
-        final CreateVirtualSchemaTestSetupRequest request = new CreateVirtualSchemaTestSetupRequest(TableRequest
-                .builder("MY_TABLE").column(MY_COLUMN, booleanType).row(List.of(valueForSingleRow)).build());
+        final CreateVirtualSchemaTestSetupRequest request = new CreateVirtualSchemaTestSetupRequest(
+                TableRequest.builder(MY_TABLE).column(MY_COLUMN, booleanType).row(List.of(valueForSingleRow)).build());
         return getTestSetup().getVirtualSchemaTestSetupProvider().createSingleTableVirtualSchemaTestSetup(request);
     }
 
@@ -218,14 +205,13 @@ public abstract class ScalarFunctionsTestBase {
 
     void assertScalarFunctionQuery(final VirtualSchemaTestSetup virtualSchema, final String query,
             final Matcher<ResultSet> resultSetMatcher) {
-        runOnExasol(statement -> {
-            assertScalarFunctionQuery(virtualSchema, query, resultSetMatcher, statement);
-        });
+        runOnExasol(statement -> assertScalarFunctionQuery(virtualSchema, query, resultSetMatcher, statement));
     }
 
     private void assertScalarFunctionQuery(final VirtualSchemaTestSetup virtualSchema, final String query,
             final Matcher<ResultSet> resultSetMatcher, final Statement statement) throws SQLException {
-        final String sql = "SELECT " + query + " FROM " + virtualSchema.getFullyQualifiedName() + ".\"MY_TABLE\"";
+        final String sql = "SELECT " + query + " FROM " + virtualSchema.getFullyQualifiedName() + ".\"" + MY_TABLE
+                + "\"";
         try (final ResultSet virtualSchemaTableResult = statement.executeQuery(sql)) {
             assertThat(virtualSchemaTableResult, resultSetMatcher);
         }
@@ -449,7 +435,7 @@ public abstract class ScalarFunctionsTestBase {
             "UTC, 1", //
             "Europe/Berlin, -3599",//
     })
-    void testPosixTime(final String timeZone, final long expectedResult) throws SQLException {
+    void testPosixTime(final String timeZone, final long expectedResult) {
         if (isTestDisabledFor("POSIX_TIME"))
             return;
         runOnExasol(statement -> {
@@ -463,9 +449,7 @@ public abstract class ScalarFunctionsTestBase {
     }
 
     private void setSessionTimezone(final String timeZone) {
-        runOnExasol(statement -> {
-            statement.executeUpdate("ALTER SESSION SET TIME_ZONE='" + timeZone + "';");
-        });
+        runOnExasol(statement -> statement.executeUpdate("ALTER SESSION SET TIME_ZONE='" + timeZone + "';"));
     }
 
     /**
@@ -479,12 +463,11 @@ public abstract class ScalarFunctionsTestBase {
     @Execution(value = ExecutionMode.CONCURRENT)
     @Tag("WithAutomaticParameterDiscovery")
     class WithAutomaticParameterDiscovery {
-        private static final String MY_TABLE = "MY_TABLE";
         private List<String> columnsWithType;
         private ScalarFunctionsParameterCache parameterCache;
         private ScalarFunctionParameterFinder parameterFinder;
         private VirtualSchemaRunVerifier virtualSchemaRunVerifier;
-        private final List<DataTypeWithExampleValue> DATA_TYPES_WITH_EXAMPLES = List.of(
+        private final List<DataTypeWithExampleValue> dataTypeWithExampleValues = List.of(
                 new DataTypeWithExampleValue(DataType.createDouble(), 0.5),
                 new DataTypeWithExampleValue(DataType.createDecimal(18, 0), 2),
                 new DataTypeWithExampleValue(DataType.createBool(), true),
@@ -509,13 +492,27 @@ public abstract class ScalarFunctionsTestBase {
             });
         }
 
+        private List<String> getColumnsOfTable(final String tableName) {
+            final List<String> names = new ArrayList<>();
+            runOnExasol(statement -> {
+                try (final ResultSet resultSet = statement.executeQuery("SELECT * FROM " + tableName)) {
+                    final ResultSetMetaData metaData = resultSet.getMetaData();
+                    final int columnCount = metaData.getColumnCount();
+                    for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
+                        names.add("\"" + metaData.getColumnName(columnIndex) + "\"");
+                    }
+                }
+            });
+            return names;
+        }
+
         private VirtualSchemaTestSetup createVirtualSchemaTestSetup() {
-            final List<Column> columns = this.DATA_TYPES_WITH_EXAMPLES.stream()
+            final List<Column> columns = this.dataTypeWithExampleValues.stream()
                     .map(dataTypeWithExampleValue -> new Column(dataTypeWithExampleValue.getExasolDataType().toString(),
                             getTestSetup()
                                     .getDataTypeThatThisAdapterMapsTo(dataTypeWithExampleValue.getExasolDataType())))
                     .collect(Collectors.toList());
-            final List<Object> rowWithExampleValues = this.DATA_TYPES_WITH_EXAMPLES.stream()
+            final List<Object> rowWithExampleValues = this.dataTypeWithExampleValues.stream()
                     .map(DataTypeWithExampleValue::getExampleValue).collect(Collectors.toList());
             final CreateVirtualSchemaTestSetupRequest request = new CreateVirtualSchemaTestSetupRequest(
                     TableRequest.builder(MY_TABLE).columns(columns).row(rowWithExampleValues).build());
