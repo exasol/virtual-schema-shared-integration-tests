@@ -1,7 +1,7 @@
 package com.exasol.adapter.commontests.scalarfunction;
 
-import java.sql.*;
-import java.sql.Date;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.*;
 
 import org.junit.jupiter.api.AfterAll;
@@ -9,17 +9,23 @@ import org.junit.jupiter.api.BeforeAll;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import com.exasol.adapter.commontests.scalarfunction.virtualschematestsetup.*;
+import com.exasol.adapter.commontests.scalarfunction.virtualschematestsetup.request.Column;
+import com.exasol.adapter.commontests.scalarfunction.virtualschematestsetup.request.TableRequest;
+import com.exasol.adapter.metadata.DataType;
 import com.exasol.containers.ExasolContainer;
 import com.exasol.dbbuilder.dialects.Schema;
 import com.exasol.dbbuilder.dialects.Table;
 import com.exasol.dbbuilder.dialects.exasol.ExasolObjectFactory;
+import com.exasol.dbbuilder.dialects.exasol.ExasolSchema;
 
 /**
  * This class is a test for {@link ScalarFunctionsTestBase}. It implements a Virtual Schema dialect that does not use a
  * virtual schema but directly returns the Exasol table.
  */
 @Testcontainers
-public class ScalarFunctionsTestBaseIT extends ScalarFunctionsTestBase {
+public class ScalarFunctionsTestBaseIT extends ScalarFunctionsTestBase
+        implements TestSetup, VirtualSchemaTestSetupProvider {
     @Container
     private static final ExasolContainer<? extends ExasolContainer<?>> CONTAINER = new ExasolContainer<>()
             .withReuse(true);
@@ -28,6 +34,7 @@ public class ScalarFunctionsTestBaseIT extends ScalarFunctionsTestBase {
 
     @BeforeAll
     static void beforeAll() throws SQLException {
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         connection = CONTAINER.createConnection();
         exasolObjectFactory = new ExasolObjectFactory(connection);
     }
@@ -38,116 +45,66 @@ public class ScalarFunctionsTestBaseIT extends ScalarFunctionsTestBase {
     }
 
     @Override
-    protected Set<String> getDialectSpecificExcludes() {
+    protected TestSetup getTestSetup() {
+        return this;
+    }
+
+    @Override
+    public Set<String> getDialectSpecificExcludes() {
         return Collections.emptySet();
     }
 
     @Override
-    protected SingleTableVirtualSchemaTestSetup createVirtualSchemaTableWithExamplesForAllDataTypes()
-            throws SQLException {
-        return new ExasolNativeSingleTableVirtualSchemaTestSetup() {
-            @Override
-            protected Table createTable() {
-                return this.getSchema().createTableBuilder(getUniqueIdentifier())//
-                        .column("floating_point", "DOUBLE")//
-                        .column("number", "integer")//
-                        .column("boolean", "boolean")//
-                        .column("string", "VARCHAR(2) UTF8")//
-                        .column("date", "DATE")//
-                        .column("timestamp", "TIMESTAMP").build()
-                        .insert(0.5, 2, true, "a", new Date(1000), new Timestamp(1001));
-            }
-        };
+    public VirtualSchemaTestSetupProvider getVirtualSchemaTestSetupProvider() {
+        return this;
     }
 
     @Override
-    protected Connection createExasolConnection() throws SQLException {
+    public Connection createExasolConnection() throws SQLException {
         return CONTAINER.createConnection();
     }
 
     @Override
-    protected SingleRowSingleTableVirtualSchemaTestSetup<Timestamp> createDateVirtualSchemaTable() throws SQLException {
-        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-        return createTestTable("TIMESTAMP");
+    public String getExternalTypeFor(final DataType exasolType) {
+        return exasolType.toString();
     }
 
     @Override
-    protected SingleRowSingleTableVirtualSchemaTestSetup<Integer> createIntegerVirtualSchemaTable()
-            throws SQLException {
-        return createTestTable("INTEGER");
-    }
-
-    @Override
-    protected SingleRowSingleTableVirtualSchemaTestSetup<Double> createDoubleVirtualSchemaTable() throws SQLException {
-        return createTestTable("DOUBLE");
-    }
-
-    @Override
-    protected SingleRowSingleTableVirtualSchemaTestSetup<Boolean> createBooleanVirtualSchemaTable()
-            throws SQLException {
-        return createTestTable("BOOLEAN");
-    }
-
-    @Override
-    protected SingleRowSingleTableVirtualSchemaTestSetup<String> createStringVirtualSchemaTable() throws SQLException {
-        return createTestTable("VARCHAR(254) UTF8");
-    }
-
-    private <T> SingleRowSingleTableVirtualSchemaTestSetup<T> createTestTable(final String type) {
-        return new SingleRowExasolNativeSingleTableVirtualSchemaTestSetup<>() {
-            @Override
-            protected Table createTable() {
-                return this.getSchema().createTableBuilder(getUniqueIdentifier())//
-                        .column("my_column", type).build();
+    public VirtualSchemaTestSetup createSingleTableVirtualSchemaTestSetup(
+            final CreateVirtualSchemaTestSetupRequest request) {
+        final ExasolSchema schema = exasolObjectFactory.createSchema(getUniqueIdentifier());
+        for (final TableRequest tableRequest : request.getTableRequests()) {
+            final Table table = buildTable(schema, tableRequest);
+            for (final List<Object> row : tableRequest.getRows()) {
+                table.insert(row.toArray());
             }
-        };
+        }
+        return new TestDbBuilderVirtualSchemaTestSetup(schema);
     }
 
-    private static abstract class ExasolNativeSingleTableVirtualSchemaTestSetup
-            implements SingleTableVirtualSchemaTestSetup {
-        private final Table table;
+    private Table buildTable(final ExasolSchema schema, final TableRequest tableRequest) {
+        final Table.Builder tableBuilder = schema.createTableBuilder(tableRequest.getName());
+        for (final Column column : tableRequest.getColumns()) {
+            tableBuilder.column(column.getName(), column.getType());
+        }
+        return tableBuilder.build();
+    }
+
+    private static class TestDbBuilderVirtualSchemaTestSetup implements VirtualSchemaTestSetup {
         private final Schema schema;
 
-        public ExasolNativeSingleTableVirtualSchemaTestSetup() {
-            this.schema = exasolObjectFactory.createSchema(getUniqueIdentifier());
-            this.table = createTable();
+        private TestDbBuilderVirtualSchemaTestSetup(final Schema schema) {
+            this.schema = schema;
         }
-
-        protected abstract Table createTable();
 
         @Override
         public String getFullyQualifiedName() {
-            return this.table.getFullyQualifiedName();
+            return this.schema.getFullyQualifiedName();
         }
 
         @Override
-        public void drop() {
-            this.table.drop();
+        public void close() throws SQLException {
             this.schema.drop();
-        }
-
-        public Schema getSchema() {
-            return this.schema;
-        }
-
-        public Table getTable() {
-            return this.table;
-        }
-    }
-
-    private static abstract class SingleRowExasolNativeSingleTableVirtualSchemaTestSetup<T> extends
-            ExasolNativeSingleTableVirtualSchemaTestSetup implements SingleRowSingleTableVirtualSchemaTestSetup<T> {
-
-        @Override
-        public void truncateTable() throws SQLException {
-            try (final Statement statement = connection.createStatement()) {
-                statement.executeUpdate("TRUNCATE TABLE " + this.getTable().getFullyQualifiedName());
-            }
-        }
-
-        @Override
-        public void insertValue(final T value) {
-            getTable().insert(value);
         }
     }
 }
