@@ -41,8 +41,8 @@ public interface TestSetup {
      * type and not a GEOMETRY (You could come to this idea because it's also mapped to a {@code VARCHAR(254) UTF8}).
      * </p>
      *
-     * @param type exasol data type
+     * @param exasolType exasol data type
      * @return data type of the dialects data source
      */
-    public String getDataTypeThatThisAdapterMapsTo(final DataType type);
+    public String getExternalTypeFor(final DataType exasolType);
 }

@@ -127,7 +127,7 @@ public abstract class ScalarFunctionsTestBase {
 
     private VirtualSchemaTestSetup buildVirtualSchemaTableWithColumnOfExasolType(final DataType exasolType,
             final Object valueForSingleRow) {
-        final String booleanType = getTestSetup().getDataTypeThatThisAdapterMapsTo(exasolType);
+        final String booleanType = getTestSetup().getExternalTypeFor(exasolType);
         final CreateVirtualSchemaTestSetupRequest request = new CreateVirtualSchemaTestSetupRequest(
                 TableRequest.builder(MY_TABLE).column(MY_COLUMN, booleanType).row(List.of(valueForSingleRow)).build());
         return getTestSetup().getVirtualSchemaTestSetupProvider().createSingleTableVirtualSchemaTestSetup(request);
@@ -509,8 +509,7 @@ public abstract class ScalarFunctionsTestBase {
         private VirtualSchemaTestSetup createVirtualSchemaTestSetup() {
             final List<Column> columns = this.dataTypeWithExampleValues.stream()
                     .map(dataTypeWithExampleValue -> new Column(dataTypeWithExampleValue.getExasolDataType().toString(),
-                            getTestSetup()
-                                    .getDataTypeThatThisAdapterMapsTo(dataTypeWithExampleValue.getExasolDataType())))
+                            getTestSetup().getExternalTypeFor(dataTypeWithExampleValue.getExasolDataType())))
                     .collect(Collectors.toList());
             final List<Object> rowWithExampleValues = this.dataTypeWithExampleValues.stream()
                     .map(DataTypeWithExampleValue::getExampleValue).collect(Collectors.toList());

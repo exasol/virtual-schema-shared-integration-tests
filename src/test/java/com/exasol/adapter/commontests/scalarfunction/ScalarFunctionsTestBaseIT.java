@@ -65,8 +65,8 @@ public class ScalarFunctionsTestBaseIT extends ScalarFunctionsTestBase
     }
 
     @Override
-    public String getDataTypeThatThisAdapterMapsTo(final DataType type) {
-        return type.toString();
+    public String getExternalTypeFor(final DataType exasolType) {
+        return exasolType.toString();
     }
 
     @Override
