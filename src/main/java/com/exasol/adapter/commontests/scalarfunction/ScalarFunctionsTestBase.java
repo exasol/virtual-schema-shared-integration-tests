@@ -9,7 +9,6 @@ import java.sql.*;
 import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -67,15 +66,16 @@ public abstract class ScalarFunctionsTestBase {
      */
     private static final Logger LOGGER = Logger.getLogger(ScalarFunctionsTestBase.class.getName());
 
+    private static int idCounter = 0;
+
     /**
      * Get an unique identifier for test resources.
      * 
      * @return unique string
      */
     protected static String getUniqueIdentifier() {
-        final Instant now = Instant.now();
-        final int randomPart = new Random().nextInt();
-        return "id" + now.getEpochSecond() + now.getNano() + randomPart;
+        idCounter++;
+        return "id" + idCounter;
     }
 
     static Stream<Arguments> getScalarFunctionWithNoParameters() {
