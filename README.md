@@ -1,6 +1,6 @@
 # Virtual Schema Shared Integration Tests
 
-[![Build Status](https://api.travis-ci.com/exasol/virtual-schema-shared-integration-tests.svg?branch=master)](https://travis-ci.org/exasol/virtual-schema-shared-integration-tests)
+[![Build Status](https://travis-ci.com/exasol/virtual-schema-shared-integration-tests.svg?branch=main)](https://travis-ci.com/exasol/virtual-schema-shared-integration-tests)
 [![Maven Central](https://img.shields.io/maven-central/v/com.exasol/virtual-schema-shared-integration-tests)](https://search.maven.org/artifact/com.exasol/virtual-schema-shared-integration-tests)
 
 This repository contains abstract integration tests for Exasol Virtual Schemas.
