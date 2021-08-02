@@ -507,15 +507,23 @@ public abstract class ScalarFunctionsTestBase {
         }
 
         private VirtualSchemaTestSetup createVirtualSchemaTestSetup() {
-            final List<Column> columns = this.dataTypeWithExampleValues.stream()
-                    .map(dataTypeWithExampleValue -> new Column(dataTypeWithExampleValue.getExasolDataType().toString(),
-                            getTestSetup().getExternalTypeFor(dataTypeWithExampleValue.getExasolDataType())))
-                    .collect(Collectors.toList());
+            final List<Column> columns = createColumns();
             final List<Object> rowWithExampleValues = this.dataTypeWithExampleValues.stream()
                     .map(DataTypeWithExampleValue::getExampleValue).collect(Collectors.toList());
             final CreateVirtualSchemaTestSetupRequest request = new CreateVirtualSchemaTestSetupRequest(
                     TableRequest.builder(MY_TABLE).columns(columns).row(rowWithExampleValues).build());
             return getTestSetup().getVirtualSchemaTestSetupProvider().createSingleTableVirtualSchemaTestSetup(request);
+        }
+
+        private List<Column> createColumns() {
+            final List<Column> columns = new ArrayList<>();
+            for (final DataTypeWithExampleValue dataTypeWithExampleValue : this.dataTypeWithExampleValues) {
+                final String type = getTestSetup().getExternalTypeFor(dataTypeWithExampleValue.getExasolDataType());
+                final Column column = new Column(
+                        type.replace(" ", "_").replace(",", "_").replace("(", "").replace(")", ""), type);
+                columns.add(column);
+            }
+            return columns;
         }
 
         @AfterAll
