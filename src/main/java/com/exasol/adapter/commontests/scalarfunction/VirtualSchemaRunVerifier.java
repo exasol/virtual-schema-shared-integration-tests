@@ -27,6 +27,11 @@ public class VirtualSchemaRunVerifier {
     private static final Logger LOGGER = Logger.getLogger(VirtualSchemaRunVerifier.class.getName());
     private final ScalarFunctionQueryBuilder virtualSchemaQueryBuilder;
 
+    /**
+     * Create a new {@link VirtualSchemaRunVerifier}.
+     * 
+     * @param virtualSchemaQueryBuilder a {@link ScalarFunctionCallBuilder}.
+     */
     public VirtualSchemaRunVerifier(final ScalarFunctionQueryBuilder virtualSchemaQueryBuilder) {
         this.virtualSchemaQueryBuilder = virtualSchemaQueryBuilder;
     }

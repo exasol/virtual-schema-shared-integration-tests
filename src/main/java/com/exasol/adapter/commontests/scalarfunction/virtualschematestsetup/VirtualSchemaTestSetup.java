@@ -2,6 +2,9 @@ package com.exasol.adapter.commontests.scalarfunction.virtualschematestsetup;
 
 import java.sql.SQLException;
 
+/**
+ * Interface for a virtual schema test setup.
+ */
 public interface VirtualSchemaTestSetup extends AutoCloseable {
 
     /**
@@ -11,6 +14,9 @@ public interface VirtualSchemaTestSetup extends AutoCloseable {
      */
     public String getFullyQualifiedName();
 
+    /**
+     * Deletes all resources of the test setup.
+     */
     @Override
     void close() throws SQLException;
 }

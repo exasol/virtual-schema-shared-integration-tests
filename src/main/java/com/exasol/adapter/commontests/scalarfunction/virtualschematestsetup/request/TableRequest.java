@@ -20,6 +20,11 @@ public class TableRequest {
         this.rows = builder.rows;
     }
 
+    /**
+     * Create a new {@link TableRequest} {@link Builder} with the given table name.
+     * @param name the table name
+     * @return a new {@link TableRequest} {@link Builder}.
+     */
     public static Builder builder(final String name) {
         return new Builder(name);
     }
