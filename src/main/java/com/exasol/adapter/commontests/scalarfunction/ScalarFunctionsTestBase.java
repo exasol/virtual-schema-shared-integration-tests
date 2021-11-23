@@ -56,7 +56,7 @@ public abstract class ScalarFunctionsTestBase {
             "convert_tz", "date_trunc", "numtodsinterval", "numtoyminterval", "to_yminterval", "to_dsinterval",
             "json_value", "extract", "posix_time", "greatest", "now", "position");
     private static final String LOCAL_COPY_TABLE_NAME = "LOCAL_COPY";
-    private static final String LOCAL_COPY_SCHEMA = "EXASOL";
+    private static final String LOCAL_COPY_SCHEMA = "LOCAL_COPY_EXASOL_SCHEMA";
     private static final String LOCAL_COPY_FULL_TABLE_NAME = LOCAL_COPY_SCHEMA + "." + LOCAL_COPY_TABLE_NAME;
 
     /**
@@ -545,6 +545,7 @@ public abstract class ScalarFunctionsTestBase {
 
         @AfterAll
         void afterAll() throws SQLException {
+            runOnExasol(statement -> statement.executeUpdate("DROP SCHEMA " + LOCAL_COPY_SCHEMA + " CASCADE"));
             this.virtualSchemaTestSetup.close();
         }
 
