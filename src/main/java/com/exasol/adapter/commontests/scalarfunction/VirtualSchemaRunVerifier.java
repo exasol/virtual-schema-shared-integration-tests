@@ -90,7 +90,7 @@ public class VirtualSchemaRunVerifier {
      * @param runsOnExasol Exasol runs (parameter - result pairs) to compare to
      * @param statement    statement to use.
      * @implNote The testing is executed in batches, since some databases have a limit in the amount of columns that can
-     *           be queried in a singel query.
+     *           be queried in a single query.
      * @return {@code true} if all parameter combinations behaved same. {@code false} otherwise
      */
     boolean quickCheckIfFunctionBehavesSameOnVs(final String function, final List<ScalarFunctionLocalRun> runsOnExasol,
