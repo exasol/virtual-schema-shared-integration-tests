@@ -486,6 +486,7 @@ public abstract class ScalarFunctionsTestBase {
         private final List<DataTypeWithExampleValue> dataTypeWithExampleValues = List.of(
                 new DataTypeWithExampleValue(DataType.createDouble(), 0.5),
                 new DataTypeWithExampleValue(DataType.createDecimal(18, 0), 2),
+                new DataTypeWithExampleValue(DataType.createDecimal(18, 3), 3.141),
                 new DataTypeWithExampleValue(DataType.createBool(), true),
                 new DataTypeWithExampleValue(DataType.createVarChar(2, DataType.ExaCharset.UTF8), "a"),
                 new DataTypeWithExampleValue(DataType.createDate(), new Date(1000)),
