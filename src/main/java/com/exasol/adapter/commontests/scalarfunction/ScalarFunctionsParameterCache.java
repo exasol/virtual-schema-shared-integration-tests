@@ -39,7 +39,7 @@ public class ScalarFunctionsParameterCache {
     }
 
     /**
-     * Check if the cache contains a given function.
+     * Check if the cache contains parameters for a given function.
      * 
      * @param functionName the function to check
      * @return {@code true} if the cache contains parameters for the given function.

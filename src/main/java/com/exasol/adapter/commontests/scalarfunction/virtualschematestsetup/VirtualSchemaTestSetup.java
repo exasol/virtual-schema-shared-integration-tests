@@ -15,7 +15,7 @@ public interface VirtualSchemaTestSetup extends AutoCloseable {
     public String getFullyQualifiedName();
 
     /**
-     * Deletes all resources of the test setup.
+     * Delete all resources of the test setup.
      */
     @Override
     void close() throws SQLException;
