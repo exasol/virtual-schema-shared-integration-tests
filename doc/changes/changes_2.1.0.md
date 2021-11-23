@@ -1,4 +1,4 @@
-# virtual-schema-shared-integration-tests 2.0.1, released 2021-11-23
+# virtual-schema-shared-integration-tests 2.1.0, released 2021-11-23
 
 Code name: Column with decimal places
 
