@@ -34,8 +34,8 @@
 | [Maven Surefire Plugin][32]                             | [Apache License, Version 2.0][25]             |
 | [JaCoCo :: Maven Plugin][34]                            | [Eclipse Public License 2.0][35]              |
 | [Maven Failsafe Plugin][36]                             | [Apache License, Version 2.0][25]             |
-| [Apache Maven GPG Plugin][38]                           | [Apache License, Version 2.0][3]              |
-| [Maven Deploy Plugin][40]                               | [The Apache Software License, Version 2.0][3] |
+| [Apache Maven GPG Plugin][38]                           | [Apache License, Version 2.0][25]             |
+| [Apache Maven Deploy Plugin][40]                        | [Apache License, Version 2.0][25]             |
 | [Nexus Staging Maven Plugin][42]                        | [Eclipse Public License][43]                  |
 | [Apache Maven Source Plugin][44]                        | [Apache License, Version 2.0][25]             |
 | [Apache Maven Javadoc Plugin][46]                       | [Apache License, Version 2.0][25]             |
@@ -48,7 +48,6 @@
 | [Maven Site Plugin 3][60]                               | [The Apache Software License, Version 2.0][3] |
 
 [22]: https://github.com/exasol/project-keeper-maven-plugin
-[34]: https://www.eclemma.org/jacoco/index.html
 [4]: https://github.com/exasol/error-reporting-java
 [3]: http://www.apache.org/licenses/LICENSE-2.0.txt
 [32]: https://maven.apache.org/surefire/maven-surefire-plugin/
@@ -63,10 +62,11 @@
 [9]: http://opensource.org/licenses/BSD-3-Clause
 [30]: https://maven.apache.org/plugins/maven-compiler-plugin/
 [15]: http://opensource.org/licenses/MIT
-[38]: http://maven.apache.org/plugins/maven-gpg-plugin/
 [35]: https://www.eclipse.org/legal/epl-2.0/
+[40]: https://maven.apache.org/plugins/maven-deploy-plugin/
 [43]: http://www.eclipse.org/legal/epl-v10.html
 [12]: https://github.com/exasol/exasol-testcontainers
+[34]: https://www.jacoco.org/jacoco/trunk/doc/maven.html
 [19]: https://github.com/mockito/mockito/blob/main/LICENSE
 [0]: https://github.com/exasol/hamcrest-resultset-matcher
 [50]: http://zlika.github.io/reproducible-build-maven-plugin
@@ -78,10 +78,10 @@
 [58]: http://maven.apache.org/plugins/maven-install-plugin/
 [6]: https://junit.org/junit5/
 [26]: https://sonatype.github.io/ossindex-maven/maven-plugin/
+[38]: https://maven.apache.org/plugins/maven-gpg-plugin/
 [14]: https://testcontainers.org
 [44]: https://maven.apache.org/plugins/maven-source-plugin/
 [8]: http://hamcrest.org/JavaHamcrest/
-[40]: http://maven.apache.org/plugins/maven-deploy-plugin/
 [60]: http://maven.apache.org/plugins/maven-site-plugin/
 [54]: http://maven.apache.org/plugins/maven-resources-plugin/
 [46]: https://maven.apache.org/plugins/maven-javadoc-plugin/
