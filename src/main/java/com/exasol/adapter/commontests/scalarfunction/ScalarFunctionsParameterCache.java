@@ -16,6 +16,9 @@ public class ScalarFunctionsParameterCache {
     private final Map<String, List<String>> parameterCache;
     private final Yaml yaml;
 
+    /**
+     * Create a new cache.
+     */
     public ScalarFunctionsParameterCache() {
         try {
             this.yaml = new Yaml();
@@ -35,24 +38,50 @@ public class ScalarFunctionsParameterCache {
         }
     }
 
-    synchronized public boolean hasParametersForFunction(final String functionName) {
+    /**
+     * Check if the cache contains parameters for a given function.
+     * 
+     * @param functionName the function to check
+     * @return {@code true} if the cache contains parameters for the given function.
+     */
+    public synchronized boolean hasParametersForFunction(final String functionName) {
         return this.parameterCache.containsKey(functionName) && !this.parameterCache.get(functionName).isEmpty();
     }
 
-    synchronized public List<String> getFunctionsValidParameterCombinations(final String functionName) {
+    /**
+     * Get the cached parameters for the given function.
+     * 
+     * @param functionName the function
+     * @return list of valid parameter combinations
+     */
+    public synchronized List<String> getFunctionsValidParameterCombinations(final String functionName) {
         return this.parameterCache.get(functionName);
     }
 
-    synchronized public void setFunctionsValidParameterCombinations(final String functionName,
+    /**
+     * Insert the given parameters into the cache.
+     * 
+     * @param functionName                the function to insert
+     * @param validParametersCombinations the parameters to insert
+     */
+    public synchronized void setFunctionsValidParameterCombinations(final String functionName,
             final List<String> validParametersCombinations) {
         this.parameterCache.put(functionName, validParametersCombinations);
     }
 
-    synchronized public void removeFunction(final String functionName) {
+    /**
+     * Remove the given function from the cache.
+     * 
+     * @param functionName the function to remove
+     */
+    public synchronized void removeFunction(final String functionName) {
         this.parameterCache.remove(functionName);
     }
 
-    synchronized public void flush() {
+    /**
+     * Write the cache to disk.
+     */
+    public synchronized void flush() {
         try (final FileWriter fileWriter = new FileWriter(CACHE_FILE_NAME)) {
             this.yaml.dump(this.parameterCache, fileWriter);
         } catch (final IOException exception) {

@@ -27,6 +27,11 @@ public class VirtualSchemaRunVerifier {
     private static final Logger LOGGER = Logger.getLogger(VirtualSchemaRunVerifier.class.getName());
     private final ScalarFunctionQueryBuilder virtualSchemaQueryBuilder;
 
+    /**
+     * Create a new {@link VirtualSchemaRunVerifier}.
+     *
+     * @param virtualSchemaQueryBuilder a {@link ScalarFunctionCallBuilder}.
+     */
     public VirtualSchemaRunVerifier(final ScalarFunctionQueryBuilder virtualSchemaQueryBuilder) {
         this.virtualSchemaQueryBuilder = virtualSchemaQueryBuilder;
     }
@@ -51,8 +56,8 @@ public class VirtualSchemaRunVerifier {
         }
         if (successParameters.isEmpty()) {
             fail(ExaError.messageBuilder("E-VS-SIT-5").message(
-                    "Non of the combinations that worked on a native Exasol table worked on the Virtual Schema table. Here is what was tried:\n{{queries}}")
-                    .unquotedParameter("queries", String.join("\n", failedQueries)).toString());
+                    "Non of the combinations that worked on a native Exasol table worked on the Virtual Schema table. Here is what was tried:\n{{queries|uq}}")
+                    .parameter("queries", String.join("\n", failedQueries)).toString());
         }
         return successParameters;
     }
@@ -90,7 +95,7 @@ public class VirtualSchemaRunVerifier {
      * @param runsOnExasol Exasol runs (parameter - result pairs) to compare to
      * @param statement    statement to use.
      * @implNote The testing is executed in batches, since some databases have a limit in the amount of columns that can
-     *           be queried in a singel query.
+     *           be queried in a single query.
      * @return {@code true} if all parameter combinations behaved same. {@code false} otherwise
      */
     boolean quickCheckIfFunctionBehavesSameOnVs(final String function, final List<ScalarFunctionLocalRun> runsOnExasol,

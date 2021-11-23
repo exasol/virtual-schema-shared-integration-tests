@@ -14,7 +14,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import com.exasol.containers.ExasolContainer;
 
 @Testcontainers
-class ScalarFunctionProviderTest {
+class ScalarFunctionProviderIT {
     @Container
     private static final ExasolContainer<? extends ExasolContainer<?>> CONTAINER = new ExasolContainer<>()
             .withReuse(true);
