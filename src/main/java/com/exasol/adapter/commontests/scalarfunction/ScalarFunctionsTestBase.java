@@ -32,7 +32,7 @@ import com.exasol.errorreporting.ExaError;
 import com.exasol.matcher.TypeMatchMode;
 
 /**
- * This is an abstract smoke test for all scalar functions, except the geospacial functions (ST_*).
+ * This is an abstract smoke test for all scalar functions, except the geospatial functions (ST_*).
  * <p>
  * These tests can be executed in parallel. In order to do so, add the system property
  * {@code -Djunit.jupiter.execution.parallel.enabled=true} to your junit JVM.
@@ -84,10 +84,10 @@ public abstract class ScalarFunctionsTestBase {
     }
 
     /**
-     * Get an test setup for testing this dialect.
+     * Get a test setup for testing this dialect.
      * <p>
      * The abstract base will call this method multiple times. Please return the same instance (typically this) for all
-     * invocation.
+     * invocations.
      * </p>
      *
      * @return test setup
@@ -111,7 +111,7 @@ public abstract class ScalarFunctionsTestBase {
     }
 
     /**
-     * This is a workaround to disable tests. The proper method would be to add these tests to the failsafe plugins
+     * This is a workaround to disable tests. The proper method would be to add these tests to the failsafe plugin
      * excludes. This is however not possible due to a bug: https://issues.apache.org/jira/browse/SUREFIRE-1880
      *
      * @param function function to test
@@ -140,9 +140,9 @@ public abstract class ScalarFunctionsTestBase {
     }
 
     /**
-     * This test case is for functions that do not have parenthesis (e.g. CURRENT_SCHEMA).
+     * This test case is for functions that do not have parentheses (e.g. CURRENT_SCHEMA).
      * <p>
-     * Since the result of all of this functions is different on different databases or at different time, we just test
+     * Since the result of all of these functions is different on different databases or at different times, we just test
      * that they don't throw an exception on the Virtual Schema.
      * </p>
      *
@@ -436,8 +436,11 @@ public abstract class ScalarFunctionsTestBase {
     /**
      * This test automatically finds parameter combinations by permuting a set of different values. Then it verifies
      * that on of the parameter combinations that did not cause an exception in on a regular Exasol table, succeeds on
-     * the virtual schema tale. In addition this test asserts that all queries that succeed on the virtual and the
+     * the virtual schema table. In addition this test asserts that all queries that succeed on the virtual and the
      * regular table have the same result.
+     *
+     * !!!! These tests uses a caching mechanism that requires a oracle-virtual-schema/src/test/resources/integration/scalarFunctionsParameterCache.yml
+     * file to Exist. It's also possible you got to manually delete the contents of this file after making changes for the tests to work.
      */
     @Nested
     @TestInstance(PER_CLASS)
@@ -502,7 +505,7 @@ public abstract class ScalarFunctionsTestBase {
             final List<Column> columns = new ArrayList<>();
             for (final DataTypeWithExampleValue dataTypeWithExampleValue : this.dataTypeWithExampleValues) {
                 final String type = getTestSetup().getExternalTypeFor(dataTypeWithExampleValue.getExasolDataType());
-                final String columnName = type.replace(" ", "_").replace(",", "_").replace("(", "").replace(")", "") + counter;
+                final String columnName = type.replace(" ", "_").replace(",", "_").replace("(", "").replace(")", "") + "_C" + counter;
                 final Column column = new Column(columnName, type);
                 columns.add(column);
                 counter++;
@@ -517,7 +520,7 @@ public abstract class ScalarFunctionsTestBase {
         }
 
         /**
-         * Test for most of the scala functions. Since they are so many, it's too much effort to write all parameter
+         * Test for most of the scalar functions. Since there are so many, it's too much effort to write all parameter
          * combinations here. Instead this test tries all permutations on an Exasol table and in case they do not cause
          * an exception asserts that they produce the same result on the virtual schema table.
          *
@@ -531,7 +534,7 @@ public abstract class ScalarFunctionsTestBase {
                         .findOrGetFittingParameters(function, statement);
                 if (successfulScalarFunctionLocalRuns.isEmpty()) {
                     throw new IllegalStateException(ExaError.messageBuilder("E-VS-SIT-2")
-                            .message("Non of the parameter combinations lead to a successful run.").toString());
+                            .message("None of the parameter combinations have lead to a successful run.").toString());
                 } else {
                     this.parameterCache.removeFunction(function);
                     if (!this.virtualSchemaRunVerifier.quickCheckIfFunctionBehavesSameOnVs(function,
