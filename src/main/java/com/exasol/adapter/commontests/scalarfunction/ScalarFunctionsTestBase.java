@@ -440,7 +440,7 @@ public abstract class ScalarFunctionsTestBase {
      * regular table have the same result.
      *
      * !!!! These tests uses a caching mechanism that requires a oracle-virtual-schema/src/test/resources/integration/scalarFunctionsParameterCache.yml
-     * file to Exist. It's also possible you got to manually delete the contents of this file after making changes for the tests to work.
+     * file to exist. It's also possible you got to manually delete the contents of this file after making changes for the tests to work.
      */
     @Nested
     @TestInstance(PER_CLASS)
