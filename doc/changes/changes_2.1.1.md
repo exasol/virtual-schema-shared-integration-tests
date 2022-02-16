@@ -7,3 +7,4 @@ Code name: Unique column names.
 * #16: Issues with test setup when using multiple columns of the same type.
 
 ## Dependency Updates
+
