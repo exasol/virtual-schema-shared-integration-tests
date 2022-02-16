@@ -32,7 +32,7 @@ import com.exasol.errorreporting.ExaError;
 import com.exasol.matcher.TypeMatchMode;
 
 /**
- * This is an abstract smoke test for all scalar functions, except the geospacial functions (ST_*).
+ * This is an abstract smoke test for all scalar functions, except the geospatial functions (ST_*).
  * <p>
  * These tests can be executed in parallel. In order to do so, add the system property
  * {@code -Djunit.jupiter.execution.parallel.enabled=true} to your junit JVM.
@@ -84,10 +84,10 @@ public abstract class ScalarFunctionsTestBase {
     }
 
     /**
-     * Get an test setup for testing this dialect.
+     * Get a test setup for testing this dialect.
      * <p>
      * The abstract base will call this method multiple times. Please return the same instance (typically this) for all
-     * invocation.
+     * invocations.
      * </p>
      *
      * @return test setup
@@ -96,7 +96,7 @@ public abstract class ScalarFunctionsTestBase {
 
     private void runOnExasol(final ExasolExecutable exasolExecutable) {
         try (final Connection connection = getTestSetup().createExasolConnection();
-                final Statement statement = connection.createStatement()) {
+             final Statement statement = connection.createStatement()) {
             exasolExecutable.runOnExasol(statement);
         } catch (final SQLException exception) {
             throw new IllegalStateException(
@@ -111,7 +111,7 @@ public abstract class ScalarFunctionsTestBase {
     }
 
     /**
-     * This is a workaround to disable tests. The proper method would be to add these tests to the failsafe plugins
+     * This is a workaround to disable tests. The proper method would be to add these tests to the failsafe plugin
      * excludes. This is however not possible due to a bug: https://issues.apache.org/jira/browse/SUREFIRE-1880
      *
      * @param function function to test
@@ -131,17 +131,18 @@ public abstract class ScalarFunctionsTestBase {
     }
 
     private VirtualSchemaTestSetup buildVirtualSchemaTableWithColumnOfExasolType(final DataType exasolType,
-            final Object valueForSingleRow) {
-        final String booleanType = getTestSetup().getExternalTypeFor(exasolType);
-        final CreateVirtualSchemaTestSetupRequest request = new CreateVirtualSchemaTestSetupRequest(
-                TableRequest.builder(MY_TABLE).column(MY_COLUMN, booleanType).row(List.of(valueForSingleRow)).build());
+                                                                                 final Object valueForSingleRow) {
+        final String externalType = getTestSetup().getExternalTypeFor(exasolType);
+        var tableRequest =
+                TableRequest.builder(MY_TABLE).column(MY_COLUMN, externalType).row(List.of(valueForSingleRow)).build();
+        final CreateVirtualSchemaTestSetupRequest request = new CreateVirtualSchemaTestSetupRequest(tableRequest);
         return getTestSetup().getVirtualSchemaTestSetupProvider().createSingleTableVirtualSchemaTestSetup(request);
     }
 
     /**
-     * This test case is for functions that do not have parenthesis (e.g. CURRENT_SCHEMA).
+     * This test case is for functions that do not have parentheses (e.g. CURRENT_SCHEMA).
      * <p>
-     * Since the result of all of this functions is different on different databases or at different time, we just test
+     * Since the result of all of these functions is different on different databases or at different times, we just test
      * that they don't throw an exception on the Virtual Schema.
      * </p>
      *
@@ -173,8 +174,8 @@ public abstract class ScalarFunctionsTestBase {
 
     private Timestamp getActualSystimestamp() throws SQLException {
         try (final Connection connection = getTestSetup().createExasolConnection();
-                final Statement statement = connection.createStatement();
-                final ResultSet actualResult = statement.executeQuery("SELECT SYSTIMESTAMP FROM DUAL;")) {
+             final Statement statement = connection.createStatement();
+             final ResultSet actualResult = statement.executeQuery("SELECT SYSTIMESTAMP FROM DUAL;")) {
             actualResult.next();
             return actualResult.getTimestamp(1);
         }
@@ -203,12 +204,12 @@ public abstract class ScalarFunctionsTestBase {
     }
 
     void assertScalarFunctionQuery(final VirtualSchemaTestSetup virtualSchema, final String query,
-            final Matcher<ResultSet> resultSetMatcher) {
+                                   final Matcher<ResultSet> resultSetMatcher) {
         runOnExasol(statement -> assertScalarFunctionQuery(virtualSchema, query, resultSetMatcher, statement));
     }
 
     private void assertScalarFunctionQuery(final VirtualSchemaTestSetup virtualSchema, final String query,
-            final Matcher<ResultSet> resultSetMatcher, final Statement statement) throws SQLException {
+                                           final Matcher<ResultSet> resultSetMatcher, final Statement statement) throws SQLException {
         final String sql = "SELECT " + query + " FROM " + virtualSchema.getFullyQualifiedName() + ".\"" + MY_TABLE
                 + "\"";
         try (final ResultSet virtualSchemaTableResult = statement.executeQuery(sql)) {
@@ -221,7 +222,7 @@ public abstract class ScalarFunctionsTestBase {
     }
 
     @ParameterizedTest
-    @CsvSource({ "ADD, +, 4", "SUB, -, 0", "MULT, *, 4", "FLOAT_DIV, /, 1" })
+    @CsvSource({"ADD, +, 4", "SUB, -, 0", "MULT, *, 4", "FLOAT_DIV, /, 1"})
     void testSimpleArithmeticFunctions(final String function, final String operator, final int expectedResult)
             throws SQLException {
         assumeTestNotSkipped(function);
@@ -243,7 +244,7 @@ public abstract class ScalarFunctionsTestBase {
     }
 
     @ParameterizedTest
-    @CsvSource({ "-2, 0", "2, 2" })
+    @CsvSource({"-2, 0", "2, 2"})
     void testGreatest(final int input, final int expectedOutput) throws SQLException {
         assumeTestNotSkipped("GREATEST");
         try (final VirtualSchemaTestSetup virtualSchema = getIntegerVirtualSchema(input)) {
@@ -258,7 +259,7 @@ public abstract class ScalarFunctionsTestBase {
     }
 
     @ParameterizedTest
-    @CsvSource({ "0.1, 0", "0.5, 1", "0.9, 1" })
+    @CsvSource({"0.1, 0", "0.5, 1", "0.9, 1"})
     void testRound(final double input, final double expectedOutput) throws SQLException {
         assumeTestNotSkipped("ROUND");
         try (final VirtualSchemaTestSetup virtualSchema = getDoubleVirtualSchema(input)) {
@@ -273,7 +274,7 @@ public abstract class ScalarFunctionsTestBase {
     }
 
     @ParameterizedTest
-    @ValueSource(booleans = { true, false })
+    @ValueSource(booleans = {true, false})
     void testNeg(final boolean input) throws SQLException {
         assumeTestNotSkipped("NEG");
         try (final VirtualSchemaTestSetup virtualSchema = getBooleanVirtualSchema(input)) {
@@ -290,12 +291,11 @@ public abstract class ScalarFunctionsTestBase {
     /**
      * Test the SQL CASE statement.
      *
-     * @implNote This test does some unnecessary math on a column of the virtual schema to make sure that this case
-     *           statement is sent to the virtual schema if possible and not evaluated before. If, however, the virtual
-     *           schema does not have the FLOAT_DIV or ADD capability this does not work.
-     *
      * @param input          input value
      * @param expectedResult expected output
+     * @implNote This test does some unnecessary math on a column of the virtual schema to make sure that this case
+     * statement is sent to the virtual schema if possible and not evaluated before. If, however, the virtual
+     * schema does not have the FLOAT_DIV or ADD capability this does not work.
      */
     @ParameterizedTest
     @CsvSource({ //
@@ -436,8 +436,11 @@ public abstract class ScalarFunctionsTestBase {
     /**
      * This test automatically finds parameter combinations by permuting a set of different values. Then it verifies
      * that on of the parameter combinations that did not cause an exception in on a regular Exasol table, succeeds on
-     * the virtual schema tale. In addition this test asserts that all queries that succeed on the virtual and the
+     * the virtual schema table. In addition this test asserts that all queries that succeed on the virtual and the
      * regular table have the same result.
+     *
+     * !!!! These tests uses a caching mechanism that requires a oracle-virtual-schema/src/test/resources/integration/scalarFunctionsParameterCache.yml
+     * file to exist. It's also possible you got to manually delete the contents of this file after making changes for the tests to work.
      */
     @Nested
     @TestInstance(PER_CLASS)
@@ -498,12 +501,14 @@ public abstract class ScalarFunctionsTestBase {
         }
 
         private List<Column> createColumns() {
+            int counter = 0;
             final List<Column> columns = new ArrayList<>();
             for (final DataTypeWithExampleValue dataTypeWithExampleValue : this.dataTypeWithExampleValues) {
                 final String type = getTestSetup().getExternalTypeFor(dataTypeWithExampleValue.getExasolDataType());
-                final Column column = new Column(
-                        type.replace(" ", "_").replace(",", "_").replace("(", "").replace(")", ""), type);
+                final String columnName = type.replace(" ", "_").replace(",", "_").replace("(", "").replace(")", "") + "_C" + counter;
+                final Column column = new Column(columnName, type);
                 columns.add(column);
+                counter++;
             }
             return columns;
         }
@@ -515,7 +520,7 @@ public abstract class ScalarFunctionsTestBase {
         }
 
         /**
-         * Test for most of the scala functions. Since they are so many, it's too much effort to write all parameter
+         * Test for most of the scalar functions. Since there are so many, it's too much effort to write all parameter
          * combinations here. Instead this test tries all permutations on an Exasol table and in case they do not cause
          * an exception asserts that they produce the same result on the virtual schema table.
          *
@@ -529,7 +534,7 @@ public abstract class ScalarFunctionsTestBase {
                         .findOrGetFittingParameters(function, statement);
                 if (successfulScalarFunctionLocalRuns.isEmpty()) {
                     throw new IllegalStateException(ExaError.messageBuilder("E-VS-SIT-2")
-                            .message("Non of the parameter combinations lead to a successful run.").toString());
+                            .message("None of the parameter combinations have lead to a successful run.").toString());
                 } else {
                     this.parameterCache.removeFunction(function);
                     if (!this.virtualSchemaRunVerifier.quickCheckIfFunctionBehavesSameOnVs(function,
