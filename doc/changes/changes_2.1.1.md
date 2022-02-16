@@ -4,6 +4,6 @@ Code name: Unique column names.
 
 ## Bugfixes
 
-* #16: Issues with test setup when using multiple columns of the same type.
+* #16: Fixed issues with test setup when using multiple columns of the same type.
 
 ## Dependency Updates
