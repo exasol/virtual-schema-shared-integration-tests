@@ -70,6 +70,9 @@ public abstract class ScalarFunctionsTestBase {
     private static int idCounter = 0;
     private final Set<String> dialectSpecificExcludes;
 
+    /**
+     * Create a new instance of {@link ScalarFunctionsTestBase}.
+     */
     protected ScalarFunctionsTestBase() {
         this.dialectSpecificExcludes = getTestSetup().getDialectSpecificExcludes().stream().map(String::toLowerCase)
                 .collect(Collectors.toSet());
