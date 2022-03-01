@@ -48,11 +48,16 @@ public class VirtualSchemaRunVerifier {
             final List<ScalarFunctionLocalRun> runsOnExasol, final Statement statement) {
         final List<String> successParameters = new ArrayList<>();
         final List<String> failedQueries = new ArrayList<>();
+        boolean hadMismatches = false;
         for (final ScalarFunctionLocalRun scalarFunctionLocalRun : runsOnExasol) {
-            final String virtualSchemaQuery = this.virtualSchemaQueryBuilder.buildQueryFor(
-                    CALL_BUILDER.buildScalarFunctionCall(function, scalarFunctionLocalRun.getParameters()));
-            assertSingleRunBehavesSameOnVirtualSchema(statement, successParameters, failedQueries,
-                    scalarFunctionLocalRun, virtualSchemaQuery);
+            if (!assertSingleRunBehavesSameOnVirtualSchema(function, statement, successParameters, failedQueries,
+                    scalarFunctionLocalRun)) {
+                hadMismatches = true;
+            }
+        }
+        if (hadMismatches) {
+            throw new IllegalStateException(ExaError.messageBuilder("E-VS-SIT-10")
+                    .message("Some runs of this function had different output. See above log messages.").toString());
         }
         if (successParameters.isEmpty()) {
             fail(ExaError.messageBuilder("E-VS-SIT-5").message(
@@ -62,18 +67,24 @@ public class VirtualSchemaRunVerifier {
         return successParameters;
     }
 
-    private void assertSingleRunBehavesSameOnVirtualSchema(final Statement statement,
+    private boolean assertSingleRunBehavesSameOnVirtualSchema(final String function, final Statement statement,
             final List<String> successParameters, final List<String> failedQueries,
-            final ScalarFunctionLocalRun scalarFunctionLocalRun, final String virtualSchemaQuery) {
+            final ScalarFunctionLocalRun scalarFunctionLocalRun) {
+        final String virtualSchemaQuery = this.virtualSchemaQueryBuilder
+                .buildQueryFor(CALL_BUILDER.buildScalarFunctionCall(function, scalarFunctionLocalRun.getParameters()));
         try (final ResultSet actualResult = statement.executeQuery(virtualSchemaQuery)) {
             // check if the results are equal; Otherwise abort - wrong results are unacceptable
             try {
                 assertThat(actualResult, table().row(buildMatcher(scalarFunctionLocalRun.getResult())).matches());
             } catch (final AssertionError assertionError) {
-                throw new IllegalStateException(
-                        ExaError.messageBuilder("E-VS-SIT-6").message("Different output for query {{query}}")
-                                .parameter("query", virtualSchemaQuery).toString(),
-                        assertionError);
+                LOGGER.log(Level.SEVERE, ExaError.messageBuilder("E-VS-SIT-6")
+                        .message("Different output for query {{query}}:\n{{error}}\n", virtualSchemaQuery,
+                                assertionError.getMessage())
+                        .mitigation(
+                                "You can exclude combination by adding {{exclude}} to your dialect specific excludes.",
+                                ScalarFunctionsTestBase.getExcludeKey(function, scalarFunctionLocalRun))
+                        .toString());
+                return false;
             }
 
             successParameters.add(scalarFunctionLocalRun.getParameters());
@@ -81,6 +92,7 @@ public class VirtualSchemaRunVerifier {
             failedQueries.add(virtualSchemaQuery);
             // ignore; probably just a strange parameter combination
         }
+        return true;
     }
 
     /**

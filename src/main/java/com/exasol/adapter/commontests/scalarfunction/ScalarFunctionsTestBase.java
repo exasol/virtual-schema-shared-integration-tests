@@ -68,6 +68,15 @@ public abstract class ScalarFunctionsTestBase {
     private static final Logger LOGGER = Logger.getLogger(ScalarFunctionsTestBase.class.getName());
 
     private static int idCounter = 0;
+    private final Set<String> dialectSpecificExcludes;
+
+    /**
+     * Create a new instance of {@link ScalarFunctionsTestBase}.
+     */
+    protected ScalarFunctionsTestBase() {
+        this.dialectSpecificExcludes = getTestSetup().getDialectSpecificExcludes().stream().map(String::toLowerCase)
+                .collect(Collectors.toSet());
+    }
 
     /**
      * Get an unique identifier for test resources.
@@ -96,7 +105,7 @@ public abstract class ScalarFunctionsTestBase {
 
     private void runOnExasol(final ExasolExecutable exasolExecutable) {
         try (final Connection connection = getTestSetup().createExasolConnection();
-             final Statement statement = connection.createStatement()) {
+                final Statement statement = connection.createStatement()) {
             exasolExecutable.runOnExasol(statement);
         } catch (final SQLException exception) {
             throw new IllegalStateException(
@@ -118,8 +127,7 @@ public abstract class ScalarFunctionsTestBase {
      * @return {@code true} if test is disabled by dialect
      */
     private boolean isTestDisabledFor(final String function) {
-        final Set<String> dialectSpecificExcludes = getTestSetup().getDialectSpecificExcludes();
-        if (dialectSpecificExcludes.contains(function.toLowerCase())) {
+        if (this.dialectSpecificExcludes.contains(function.toLowerCase())) {
             LOGGER.log(Level.FINE, "Skipping test for {0} since it was disabled for this dialect.", function);
             return true;
         }
@@ -131,10 +139,10 @@ public abstract class ScalarFunctionsTestBase {
     }
 
     private VirtualSchemaTestSetup buildVirtualSchemaTableWithColumnOfExasolType(final DataType exasolType,
-                                                                                 final Object valueForSingleRow) {
+            final Object valueForSingleRow) {
         final String externalType = getTestSetup().getExternalTypeFor(exasolType);
-        var tableRequest =
-                TableRequest.builder(MY_TABLE).column(MY_COLUMN, externalType).row(List.of(valueForSingleRow)).build();
+        final var tableRequest = TableRequest.builder(MY_TABLE).column(MY_COLUMN, externalType)
+                .row(List.of(valueForSingleRow)).build();
         final CreateVirtualSchemaTestSetupRequest request = new CreateVirtualSchemaTestSetupRequest(tableRequest);
         return getTestSetup().getVirtualSchemaTestSetupProvider().createSingleTableVirtualSchemaTestSetup(request);
     }
@@ -142,8 +150,8 @@ public abstract class ScalarFunctionsTestBase {
     /**
      * This test case is for functions that do not have parentheses (e.g. CURRENT_SCHEMA).
      * <p>
-     * Since the result of all of these functions is different on different databases or at different times, we just test
-     * that they don't throw an exception on the Virtual Schema.
+     * Since the result of all of these functions is different on different databases or at different times, we just
+     * test that they don't throw an exception on the Virtual Schema.
      * </p>
      *
      * @param function function to test.
@@ -174,8 +182,8 @@ public abstract class ScalarFunctionsTestBase {
 
     private Timestamp getActualSystimestamp() throws SQLException {
         try (final Connection connection = getTestSetup().createExasolConnection();
-             final Statement statement = connection.createStatement();
-             final ResultSet actualResult = statement.executeQuery("SELECT SYSTIMESTAMP FROM DUAL;")) {
+                final Statement statement = connection.createStatement();
+                final ResultSet actualResult = statement.executeQuery("SELECT SYSTIMESTAMP FROM DUAL;")) {
             actualResult.next();
             return actualResult.getTimestamp(1);
         }
@@ -204,12 +212,12 @@ public abstract class ScalarFunctionsTestBase {
     }
 
     void assertScalarFunctionQuery(final VirtualSchemaTestSetup virtualSchema, final String query,
-                                   final Matcher<ResultSet> resultSetMatcher) {
+            final Matcher<ResultSet> resultSetMatcher) {
         runOnExasol(statement -> assertScalarFunctionQuery(virtualSchema, query, resultSetMatcher, statement));
     }
 
     private void assertScalarFunctionQuery(final VirtualSchemaTestSetup virtualSchema, final String query,
-                                           final Matcher<ResultSet> resultSetMatcher, final Statement statement) throws SQLException {
+            final Matcher<ResultSet> resultSetMatcher, final Statement statement) throws SQLException {
         final String sql = "SELECT " + query + " FROM " + virtualSchema.getFullyQualifiedName() + ".\"" + MY_TABLE
                 + "\"";
         try (final ResultSet virtualSchemaTableResult = statement.executeQuery(sql)) {
@@ -222,7 +230,7 @@ public abstract class ScalarFunctionsTestBase {
     }
 
     @ParameterizedTest
-    @CsvSource({"ADD, +, 4", "SUB, -, 0", "MULT, *, 4", "FLOAT_DIV, /, 1"})
+    @CsvSource({ "ADD, +, 4", "SUB, -, 0", "MULT, *, 4", "FLOAT_DIV, /, 1" })
     void testSimpleArithmeticFunctions(final String function, final String operator, final int expectedResult)
             throws SQLException {
         assumeTestNotSkipped(function);
@@ -244,7 +252,7 @@ public abstract class ScalarFunctionsTestBase {
     }
 
     @ParameterizedTest
-    @CsvSource({"-2, 0", "2, 2"})
+    @CsvSource({ "-2, 0", "2, 2" })
     void testGreatest(final int input, final int expectedOutput) throws SQLException {
         assumeTestNotSkipped("GREATEST");
         try (final VirtualSchemaTestSetup virtualSchema = getIntegerVirtualSchema(input)) {
@@ -259,7 +267,7 @@ public abstract class ScalarFunctionsTestBase {
     }
 
     @ParameterizedTest
-    @CsvSource({"0.1, 0", "0.5, 1", "0.9, 1"})
+    @CsvSource({ "0.1, 0", "0.5, 1", "0.9, 1" })
     void testRound(final double input, final double expectedOutput) throws SQLException {
         assumeTestNotSkipped("ROUND");
         try (final VirtualSchemaTestSetup virtualSchema = getDoubleVirtualSchema(input)) {
@@ -274,7 +282,7 @@ public abstract class ScalarFunctionsTestBase {
     }
 
     @ParameterizedTest
-    @ValueSource(booleans = {true, false})
+    @ValueSource(booleans = { true, false })
     void testNeg(final boolean input) throws SQLException {
         assumeTestNotSkipped("NEG");
         try (final VirtualSchemaTestSetup virtualSchema = getBooleanVirtualSchema(input)) {
@@ -294,8 +302,8 @@ public abstract class ScalarFunctionsTestBase {
      * @param input          input value
      * @param expectedResult expected output
      * @implNote This test does some unnecessary math on a column of the virtual schema to make sure that this case
-     * statement is sent to the virtual schema if possible and not evaluated before. If, however, the virtual
-     * schema does not have the FLOAT_DIV or ADD capability this does not work.
+     *           statement is sent to the virtual schema if possible and not evaluated before. If, however, the virtual
+     *           schema does not have the FLOAT_DIV or ADD capability this does not work.
      */
     @ParameterizedTest
     @CsvSource({ //
@@ -439,8 +447,9 @@ public abstract class ScalarFunctionsTestBase {
      * the virtual schema table. In addition this test asserts that all queries that succeed on the virtual and the
      * regular table have the same result.
      *
-     * !!!! These tests uses a caching mechanism that requires a oracle-virtual-schema/src/test/resources/integration/scalarFunctionsParameterCache.yml
-     * file to exist. It's also possible you got to manually delete the contents of this file after making changes for the tests to work.
+     * !!!! These tests uses a caching mechanism that requires a
+     * oracle-virtual-schema/src/test/resources/integration/scalarFunctionsParameterCache.yml file to exist. It's also
+     * possible you got to manually delete the contents of this file after making changes for the tests to work.
      */
     @Nested
     @TestInstance(PER_CLASS)
@@ -505,7 +514,8 @@ public abstract class ScalarFunctionsTestBase {
             final List<Column> columns = new ArrayList<>();
             for (final DataTypeWithExampleValue dataTypeWithExampleValue : this.dataTypeWithExampleValues) {
                 final String type = getTestSetup().getExternalTypeFor(dataTypeWithExampleValue.getExasolDataType());
-                final String columnName = type.replace(" ", "_").replace(",", "_").replace("(", "").replace(")", "") + "_C" + counter;
+                final String columnName = type.replace(" ", "_").replace(",", "_").replace("(", "").replace(")", "")
+                        + "_C" + counter;
                 final Column column = new Column(columnName, type);
                 columns.add(column);
                 counter++;
@@ -536,18 +546,19 @@ public abstract class ScalarFunctionsTestBase {
                     throw new IllegalStateException(ExaError.messageBuilder("E-VS-SIT-2")
                             .message("None of the parameter combinations have lead to a successful run.").toString());
                 } else {
+                    final List<ScalarFunctionLocalRun> filteredRuns = successfulScalarFunctionLocalRuns.stream()
+                            .filter(run -> !isTestDisabledFor(getExcludeKey(function, run)))
+                            .collect(Collectors.toList());
                     this.parameterCache.removeFunction(function);
-                    if (!this.virtualSchemaRunVerifier.quickCheckIfFunctionBehavesSameOnVs(function,
-                            successfulScalarFunctionLocalRuns, statement)) {
+                    if (!this.virtualSchemaRunVerifier.quickCheckIfFunctionBehavesSameOnVs(function, filteredRuns,
+                            statement)) {
                         LOGGER.log(Level.FINE, "Quick test failed for {0}. Running full checks.", function);
                         final List<String> successfulParameters = this.virtualSchemaRunVerifier
-                                .assertFunctionBehavesSameOnVirtualSchema(function, successfulScalarFunctionLocalRuns,
-                                        statement);
+                                .assertFunctionBehavesSameOnVirtualSchema(function, filteredRuns, statement);
                         this.parameterCache.setFunctionsValidParameterCombinations(function, successfulParameters);
                     } else {
-                        this.parameterCache.setFunctionsValidParameterCombinations(function,
-                                successfulScalarFunctionLocalRuns.stream().map(ScalarFunctionLocalRun::getParameters)
-                                        .collect(Collectors.toList()));
+                        this.parameterCache.setFunctionsValidParameterCombinations(function, filteredRuns.stream()
+                                .map(ScalarFunctionLocalRun::getParameters).collect(Collectors.toList()));
                     }
                     this.parameterCache.flush();
                 }
@@ -565,5 +576,9 @@ public abstract class ScalarFunctionsTestBase {
                         .message("Failed to get supported scalar functions.").toString(), exception);
             }
         }
+    }
+
+    static String getExcludeKey(final String function, final ScalarFunctionLocalRun run) {
+        return function + "(" + run.getParameters() + ")";
     }
 }
