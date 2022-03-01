@@ -19,6 +19,23 @@ This repository contains abstract integration tests for Exasol Virtual Schemas.
 
 The tests check that Exasol functions behave in the same way on a Virtual Schema table and on a regular Exasol table.
 
+## Usage
+
+You can use these tests by subclassing `ScalarFunctionsTestBase` in your project's tests. By that your test will inherit the shared tests.
+
+### Excludes
+
+For some dialects some test might need not apply. That's why this test suite allows you to exclude certain tests:
+
+```
+@Override
+public Set<String> getDialectSpecificExcludes(){
+    return Set.of("neg");
+}
+```
+
+For the automatic tests you can also exclude certain parameter combinations.
+
 ## Additional Information
 
 * [Changelog](doc/changes/changelog.md)
