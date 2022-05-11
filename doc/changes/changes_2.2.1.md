@@ -31,7 +31,9 @@ This release upgrades dependencies and reduces the number of runtime dependencie
 * Updated `com.exasol:project-keeper-maven-plugin:1.3.2` to `2.3.2`
 * Updated `io.github.zlika:reproducible-build-maven-plugin:0.13` to `0.15`
 * Updated `org.apache.maven.plugins:maven-compiler-plugin:3.8.1` to `3.10.1`
+* Updated `org.apache.maven.plugins:maven-failsafe-plugin:3.0.0-M3` to `3.0.0-M6`
 * Updated `org.apache.maven.plugins:maven-javadoc-plugin:3.3.1` to `3.4.0`
+* Updated `org.apache.maven.plugins:maven-surefire-plugin:3.0.0-M3` to `3.0.0-M6`
 * Added `org.codehaus.mojo:flatten-maven-plugin:1.2.7`
 * Updated `org.codehaus.mojo:versions-maven-plugin:2.8.1` to `2.10.0`
 * Updated `org.jacoco:jacoco-maven-plugin:0.8.7` to `0.8.8`
