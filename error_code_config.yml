@@ -2,3 +2,4 @@ error-tags:
   VS-SIT:
     packages:
       - com.exasol.adapter.commontests
+    highest-index: 10
