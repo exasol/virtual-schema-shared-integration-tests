@@ -18,7 +18,7 @@
 | ----------------------------------------------------------- | --------------------- |
 | [Test containers for Exasol on Docker][12]                  | [MIT][1]              |
 | [Testcontainers :: JUnit Jupiter Extension][14]             | [MIT][15]             |
-| [Test Database Builder for Java][16]                        | [MIT][1]              |
+| [Test Database Builder for Java][16]                        | [MIT License][17]     |
 | [mockito-junit-jupiter][18]                                 | [The MIT License][19] |
 | [Apache Derby Database Engine and Embedded JDBC Driver][20] | [Apache 2][3]         |
 
@@ -49,6 +49,7 @@
 
 [22]: https://github.com/exasol/project-keeper-maven-plugin
 [4]: https://github.com/exasol/error-reporting-java
+[16]: https://github.com/exasol/test-db-builder-java/
 [3]: http://www.apache.org/licenses/LICENSE-2.0.txt
 [32]: https://maven.apache.org/surefire/maven-surefire-plugin/
 [42]: http://www.sonatype.com/public-parent/nexus-maven-plugins/nexus-staging/nexus-staging-maven-plugin/
@@ -57,11 +58,11 @@
 [18]: https://github.com/mockito/mockito
 [20]: http://db.apache.org/derby/
 [36]: https://maven.apache.org/surefire/maven-failsafe-plugin/
-[16]: https://github.com/exasol/test-db-builder-java
 [24]: http://www.mojohaus.org/versions-maven-plugin/
 [9]: http://opensource.org/licenses/BSD-3-Clause
 [30]: https://maven.apache.org/plugins/maven-compiler-plugin/
 [15]: http://opensource.org/licenses/MIT
+[17]: https://github.com/exasol/test-db-builder-java/blob/main/LICENSE
 [35]: https://www.eclipse.org/legal/epl-2.0/
 [40]: https://maven.apache.org/plugins/maven-deploy-plugin/
 [43]: http://www.eclipse.org/legal/epl-v10.html
@@ -73,9 +74,9 @@
 [56]: http://maven.apache.org/plugins/maven-jar-plugin/
 [25]: https://www.apache.org/licenses/LICENSE-2.0.txt
 [28]: https://maven.apache.org/enforcer/maven-enforcer-plugin/
-[2]: https://bitbucket.org/asomov/snakeyaml/src/master/
 [7]: https://www.eclipse.org/legal/epl-v20.html
 [58]: http://maven.apache.org/plugins/maven-install-plugin/
+[2]: https://bitbucket.org/snakeyaml/snakeyaml
 [6]: https://junit.org/junit5/
 [26]: https://sonatype.github.io/ossindex-maven/maven-plugin/
 [38]: https://maven.apache.org/plugins/maven-gpg-plugin/
