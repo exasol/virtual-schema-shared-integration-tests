@@ -222,6 +222,8 @@ public abstract class ScalarFunctionsTestBase {
                 + "\"";
         try (final ResultSet virtualSchemaTableResult = statement.executeQuery(sql)) {
             assertThat(virtualSchemaTableResult, resultSetMatcher);
+        } catch (final SQLException exception) {
+            throw new AssertionError("Error executing query '" + sql + "'", exception);
         }
     }
 
