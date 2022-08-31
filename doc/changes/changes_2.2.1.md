@@ -4,11 +4,11 @@ Code name: 2.2.1: Upgrade dependencies compared to 2.2.0
 
 ## Summary
 
-This release upgrades dependencies and reduces the number of runtime dependencies, fixing [CVE-2022-21724](https://ossindex.sonatype.org/vulnerability/0f319d1b-e964-4471-bded-db3aeb3c3a29?component-type=maven&component-name=org.postgresql.postgresql&utm_source=ossindex-client&utm_medium=integration&utm_content=1.1.1) in the PostgreSQL JDBC driver.
+This release upgrades dependencies and reduces the number of runtime dependencies, fixing CVE-2022-21724 in the PostgreSQL JDBC driver.
 
 ## Features
 
-* #20: Upgraded dependencies to fix [CVE-2022-21724](https://ossindex.sonatype.org/vulnerability/0f319d1b-e964-4471-bded-db3aeb3c3a29?component-type=maven&component-name=org.postgresql.postgresql&utm_source=ossindex-client&utm_medium=integration&utm_content=1.1.1) in the PostgreSQL JDBC driver.
+* #20: Upgraded dependencies to fix CVE-2022-21724 in the PostgreSQL JDBC driver.
 
 ## Bugfixes
 
