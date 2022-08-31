@@ -1,4 +1,4 @@
-# virtual-schema-shared-integration-tests 2.2.1, released 2022-08-21
+# virtual-schema-shared-integration-tests 2.2.1, released 2022-08-31
 
 Code name: 2.2.1: Upgrade dependencies compared to 2.2.0
 
