@@ -24,7 +24,7 @@ We also updated dependencies and removed the reference to the Exasol artifactory
 * Updated `com.exasol:test-db-builder-java:3.3.4` to `3.4.1`
 * Updated `org.apache.derby:derby:10.15.2.0` to `10.16.1.1`
 * Updated `org.mockito:mockito-junit-jupiter:4.8.0` to `4.10.0`
-* Added `org.slf4j:slf4j-simple:2.0.4`
+* Added `org.slf4j:slf4j-simple:2.0.5`
 * Updated `org.testcontainers:junit-jupiter:1.17.3` to `1.17.6`
 
 ### Plugin Dependency Updates
