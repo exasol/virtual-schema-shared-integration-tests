@@ -1,6 +1,6 @@
 # Virtual Schema Shared Integration Tests 2.2.3, released 2022-12-21
 
-Code name:
+Code name: VSSIT
 
 ## Summary
 
