@@ -117,7 +117,7 @@ public class TableRequest {
         private void validateRowsColumnCount() {
             for (final List<Object> row : this.rows) {
                 if (row.size() != this.columns.size()) {
-                    throw new IllegalArgumentException(ExaError.messageBuilder("F-VS-SIT-9")
+                    throw new IllegalArgumentException(ExaError.messageBuilder("F-VSSIT-9")
                             .message("The given row has a different number of columns than the table.").toString());
                 }
             }

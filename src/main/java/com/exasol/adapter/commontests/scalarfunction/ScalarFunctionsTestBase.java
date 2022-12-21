@@ -44,7 +44,7 @@ public abstract class ScalarFunctionsTestBase {
     private static final String MY_COLUMN = "MY_COLUMN";
     private static final String MY_TABLE = "MY_TABLE";
     /**
-     * These functions are tested separately in {@link testFunctionsWithNoParenthesis(String)} )}
+     * These functions are tested separately in {@link ScalarFunctionsTestBase#testFunctionsWithNoParenthesis(String)} )}
      */
     private static final Set<String> FUNCTIONS_WITH_NO_PARENTHESIS = Set.of("localtimestamp", "sysdate",
             "current_schema", "current_statement", "current_session", "current_date", "current_user",
@@ -109,7 +109,7 @@ public abstract class ScalarFunctionsTestBase {
             exasolExecutable.runOnExasol(statement);
         } catch (final SQLException exception) {
             throw new IllegalStateException(
-                    ExaError.messageBuilder("E-VS-SIT-1").message("Failed to execute command on Exasol.").toString(),
+                    ExaError.messageBuilder("E-VSSIT-1").message("Failed to execute command on Exasol.").toString(),
                     exception);
         }
     }
@@ -121,7 +121,8 @@ public abstract class ScalarFunctionsTestBase {
 
     /**
      * This is a workaround to disable tests. The proper method would be to add these tests to the failsafe plugin
-     * excludes. This is however not possible due to a bug: https://issues.apache.org/jira/browse/SUREFIRE-1880
+     * excludes. This is however not possible due to a bug:
+     * <a href="https://issues.apache.org/jira/browse/SUREFIRE-1880">SUREFIRE-1880</a>
      *
      * @param function function to test
      * @return {@code true} if test is disabled by dialect
@@ -217,7 +218,7 @@ public abstract class ScalarFunctionsTestBase {
     }
 
     private void assertScalarFunctionQuery(final VirtualSchemaTestSetup virtualSchema, final String query,
-            final Matcher<ResultSet> resultSetMatcher, final Statement statement) throws SQLException {
+            final Matcher<ResultSet> resultSetMatcher, final Statement statement) {
         final String sql = "SELECT " + query + " FROM " + virtualSchema.getFullyQualifiedName() + ".\"" + MY_TABLE
                 + "\"";
         try (final ResultSet virtualSchemaTableResult = statement.executeQuery(sql)) {
@@ -446,12 +447,13 @@ public abstract class ScalarFunctionsTestBase {
     /**
      * This test automatically finds parameter combinations by permuting a set of different values. Then it verifies
      * that on of the parameter combinations that did not cause an exception in on a regular Exasol table, succeeds on
-     * the virtual schema table. In addition this test asserts that all queries that succeed on the virtual and the
+     * the virtual schema table. In addition, this test asserts that all queries that succeed on the virtual and the
      * regular table have the same result.
-     *
-     * !!!! These tests uses a caching mechanism that requires a
+     * <p>
+     * !!!! These tests uses a caching mechanism that requires an
      * oracle-virtual-schema/src/test/resources/integration/scalarFunctionsParameterCache.yml file to exist. It's also
      * possible you got to manually delete the contents of this file after making changes for the tests to work.
+     * </p>
      */
     @Nested
     @TestInstance(PER_CLASS)
@@ -545,7 +547,7 @@ public abstract class ScalarFunctionsTestBase {
                 final List<ScalarFunctionLocalRun> successfulScalarFunctionLocalRuns = this.parameterFinder
                         .findOrGetFittingParameters(function, statement);
                 if (successfulScalarFunctionLocalRuns.isEmpty()) {
-                    throw new IllegalStateException(ExaError.messageBuilder("E-VS-SIT-2")
+                    throw new IllegalStateException(ExaError.messageBuilder("E-VSSIT-2")
                             .message("None of the parameter combinations have lead to a successful run.").toString());
                 } else {
                     final List<ScalarFunctionLocalRun> filteredRuns = successfulScalarFunctionLocalRuns.stream()
@@ -574,7 +576,7 @@ public abstract class ScalarFunctionsTestBase {
                                 && !isTestDisabledFor(function) && !FUNCTIONS_WITH_NO_PARENTHESIS.contains(function))//
                         .map(Arguments::of);
             } catch (final SQLException exception) {
-                throw new IllegalStateException(ExaError.messageBuilder("E-VS-SIT-8")
+                throw new IllegalStateException(ExaError.messageBuilder("E-VSSIT-8")
                         .message("Failed to get supported scalar functions.").toString(), exception);
             }
         }

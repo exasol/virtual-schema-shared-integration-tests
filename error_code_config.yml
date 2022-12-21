@@ -1,5 +1,5 @@
 error-tags:
-  VS-SIT:
+  VSSIT:
     packages:
       - com.exasol.adapter.commontests
     highest-index: 10
