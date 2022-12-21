@@ -82,8 +82,8 @@
         <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
-            <version>10.16.1.1</version>
-            <!-- Versions >= 10.16.x require Java 17-->
+            <!-- Versions >= 10.16.x require Java 17. Do not upgrade while using Java 11. -->
+            <version>10.15.2.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
