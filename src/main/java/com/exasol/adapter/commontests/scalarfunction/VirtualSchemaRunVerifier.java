@@ -56,11 +56,11 @@ public class VirtualSchemaRunVerifier {
             }
         }
         if (hadMismatches) {
-            throw new IllegalStateException(ExaError.messageBuilder("E-VS-SIT-10")
+            throw new IllegalStateException(ExaError.messageBuilder("E-VSSIT-10")
                     .message("Some runs of this function had different output. See above log messages.").toString());
         }
         if (successParameters.isEmpty()) {
-            fail(ExaError.messageBuilder("E-VS-SIT-5").message(
+            fail(ExaError.messageBuilder("E-VSSIT-5").message(
                     "Non of the combinations that worked on a native Exasol table worked on the Virtual Schema table. Here is what was tried:\n{{queries|uq}}")
                     .parameter("queries", String.join("\n", failedQueries)).toString());
         }
@@ -73,24 +73,29 @@ public class VirtualSchemaRunVerifier {
         final String virtualSchemaQuery = this.virtualSchemaQueryBuilder
                 .buildQueryFor(CALL_BUILDER.buildScalarFunctionCall(function, scalarFunctionLocalRun.getParameters()));
         try (final ResultSet actualResult = statement.executeQuery(virtualSchemaQuery)) {
-            // check if the results are equal; Otherwise abort - wrong results are unacceptable
-            try {
-                assertThat(actualResult, table().row(buildMatcher(scalarFunctionLocalRun.getResult())).matches());
-            } catch (final AssertionError assertionError) {
-                LOGGER.log(Level.SEVERE, ExaError.messageBuilder("E-VS-SIT-6")
-                        .message("Different output for query {{query}}:\n{{error}}\n", virtualSchemaQuery,
-                                assertionError.getMessage())
-                        .mitigation(
-                                "You can exclude combination by adding {{exclude}} to your dialect specific excludes.",
-                                ScalarFunctionsTestBase.getExcludeKey(function, scalarFunctionLocalRun))
-                        .toString());
+            if (!areResultsIdentical(function, scalarFunctionLocalRun, virtualSchemaQuery, actualResult)) {
                 return false;
             }
-
             successParameters.add(scalarFunctionLocalRun.getParameters());
         } catch (final SQLException exception) {
             failedQueries.add(virtualSchemaQuery);
             // ignore; probably just a strange parameter combination
+        }
+        return true;
+    }
+
+    private boolean areResultsIdentical(final String function, final ScalarFunctionLocalRun scalarFunctionLocalRun, final String virtualSchemaQuery, final ResultSet actualResult) {
+        try {
+            assertThat(actualResult, table().row(buildMatcher(scalarFunctionLocalRun.getResult())).matches());
+        } catch (final AssertionError assertionError) {
+            LOGGER.log(Level.SEVERE, ExaError.messageBuilder("E-VSSIT-6")
+                    .message("Different output for query {{query}}:\n{{error}}\n", virtualSchemaQuery,
+                            assertionError.getMessage())
+                    .mitigation(
+                            "You can exclude combination by adding {{exclude}} to your dialect specific excludes.",
+                            ScalarFunctionsTestBase.getExcludeKey(function, scalarFunctionLocalRun))
+                    .toString());
+            return false;
         }
         return true;
     }

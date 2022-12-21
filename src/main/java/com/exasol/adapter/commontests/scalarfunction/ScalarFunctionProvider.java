@@ -21,7 +21,7 @@ public class ScalarFunctionProvider {
                         "SELECT PARAM_VALUE FROM EXA_METADATA WHERE PARAM_NAME IN('timeDateFunctions', 'stringFunctions', 'systemFunctions', 'numericFunctions', 'SQL92StringFunctions','SQL92NumericValueFunctions')")) {
             return parseScalarFunctions(resultSet);
         } catch (final SQLException exception) {
-            throw new IllegalStateException(ExaError.messageBuilder("F-VS-SIT-7")
+            throw new IllegalStateException(ExaError.messageBuilder("F-VSSIT-7")
                     .message("Failed to fetch list of scalar functions from the exasol database.").ticketMitigation()
                     .toString(), exception);
         }

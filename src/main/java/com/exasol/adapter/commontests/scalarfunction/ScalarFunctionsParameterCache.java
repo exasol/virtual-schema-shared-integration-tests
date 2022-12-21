@@ -3,9 +3,11 @@ package com.exasol.adapter.commontests.scalarfunction;
 import java.io.*;
 import java.util.*;
 
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 
 import com.exasol.errorreporting.ExaError;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 /**
  * This class caches the parameters for runs that were passed the tests. By that in upcoming test runs can only test
@@ -21,12 +23,26 @@ public class ScalarFunctionsParameterCache {
      */
     public ScalarFunctionsParameterCache() {
         try {
-            this.yaml = new Yaml();
+            this.yaml = constructYamlSafely();
             this.parameterCache = loadParameterCache();
         } catch (final FileNotFoundException exception) {
-            throw new IllegalStateException(ExaError.messageBuilder("E-VS-SIT-3")
+            throw new IllegalStateException(ExaError.messageBuilder("E-VSSIT-3")
                     .message("Failed to read scalar functions from parameters cache.").toString(), exception);
         }
+    }
+
+    /**
+     * This method uses SnakeYaml's safe constructor to create a new instance.
+     * <p>
+     * This is done to avoid potential deserialization of external content.
+     * See <a href="https://nvd.nist.gov/vuln/detail/CVE-2022-1471">CVE-2022-1471</a> for details.
+     * </p>
+     *
+     * @return new {@link Yaml} instance
+     */
+    private static Yaml constructYamlSafely() {
+        final LoaderOptions options = new LoaderOptions();
+        return new Yaml(new SafeConstructor(options));
     }
 
     private Map<String, List<String>> loadParameterCache() throws FileNotFoundException {
@@ -86,7 +102,7 @@ public class ScalarFunctionsParameterCache {
             this.yaml.dump(this.parameterCache, fileWriter);
         } catch (final IOException exception) {
             throw new IllegalStateException(
-                    ExaError.messageBuilder("E-VS-SIT-4")
+                    ExaError.messageBuilder("E-VSSIT-4")
                             .message("Failed to write scalar functions parameter to the cache file.").toString(),
                     exception);
         }

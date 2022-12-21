@@ -96,6 +96,6 @@ class VirtualSchemaRunVerifierTest {
                 () -> this.virtualSchemaRunVerifier.assertFunctionBehavesSameOnVirtualSchema("UPPER", runsOnExasol,
                         this.statement));
         assertThat(exception.getMessage(),
-                equalTo("E-VS-SIT-10: Some runs of this function had different output. See above log messages."));
+                equalTo("E-VSSIT-10: Some runs of this function had different output. See above log messages."));
     }
 }
