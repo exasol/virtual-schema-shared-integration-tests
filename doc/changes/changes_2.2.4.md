@@ -1,4 +1,4 @@
-# Virtual Schema Shared Integration Tests 2.2.4, released 2023-03-14
+# Virtual Schema Shared Integration Tests 2.2.4, released 2023-03-15
 
 Code name: Dependency updates
 
