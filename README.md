@@ -1,7 +1,7 @@
 # Virtual Schema Shared Integration Tests
 
 [![Build Status](https://github.com/exasol/virtual-schema-shared-integration-tests/actions/workflows/ci-build.yml/badge.svg)](https://github.com/exasol/virtual-schema-shared-integration-tests/actions/workflows/ci-build.yml)
-[![Maven Central – virtual-schema-shared-integration-tests](https://img.shields.io/maven-central/v/com.exasol/virtual-schema-shared-integration-tests)](https://search.maven.org/artifact/com.exasol/virtual-schema-shared-integration-tests)
+[![Maven Central &ndash; virtual-schema-shared-integration-tests](https://img.shields.io/maven-central/v/com.exasol/virtual-schema-shared-integration-tests)](https://search.maven.org/artifact/com.exasol/virtual-schema-shared-integration-tests)
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=com.exasol%3Avirtual-schema-shared-integration-tests&metric=alert_status)](https://sonarcloud.io/dashboard?id=com.exasol%3Avirtual-schema-shared-integration-tests)
 
