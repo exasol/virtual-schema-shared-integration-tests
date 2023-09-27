@@ -5,6 +5,4 @@ sources:
       - integration_tests
       - maven_central
 linkReplacements:
-  - "http://www.snakeyaml.org|https://bitbucket.org/asomov/snakeyaml/src/master/"
 excludes:
-  - regex: "E-PK-CORE-53: The dependencies.md file has outdated content.*"
