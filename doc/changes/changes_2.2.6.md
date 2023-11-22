@@ -1,4 +1,4 @@
-# Virtual Schema Shared Integration Tests 2.2.6, released 2023-11-21
+# Virtual Schema Shared Integration Tests 2.2.6, released 2023-11-22
 
 Code name: Fix vulnerability CVE-2023-4043 in test dependencies
 
