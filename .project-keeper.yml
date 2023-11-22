@@ -4,5 +4,9 @@ sources:
     modules:
       - integration_tests
       - maven_central
-linkReplacements:
-excludes:
+build:
+  runnerOs: ubuntu-latest
+  freeDiskSpace: false
+  exasolDbVersions:
+    - "8.23.1"
+    - "7.1.24"
