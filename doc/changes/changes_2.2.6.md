@@ -1,12 +1,10 @@
 # Virtual Schema Shared Integration Tests 2.2.6, released 2023-11-21
 
-Code name: Fix vulnerabilities CVE-2023-4043 and CVE-2022-46337 in test dependencies
+Code name: Fix vulnerability CVE-2023-4043 in test dependencies
 
 ## Summary
 
-This release fixes vulnerabilities CVE-2023-4043 and CVE-2022-46337 in test dependencies:
-
-* `org.eclipse.parsson:parsson`: CVE-2023-4043 CWE-20: Improper Input Validation (7.5)
+This release fixes vulnerability CVE-2023-4043 (CWE-20: Improper Input Validation (7.5)) in test dependency `org.eclipse.parsson:parsson`.
 
 **Note:** This release excludes vulnerability CVE-2022-46337 in `org.apache.derby:derby:jar:10.14.2.0` which is required only for tests. Newer versions don’t support Java 8 any more.
 
@@ -14,7 +12,7 @@ We also run integration tests now with both Exasol DB version 7.1 and 8.
 
 ## Security
 
-* #34: Fixed vulnerabilities CVE-2023-4043 and CVE-2022-46337 in test dependencies
+* #34: Fixed vulnerability CVE-2023-4043 in test dependencies
 
 ## Dependency Updates
 
