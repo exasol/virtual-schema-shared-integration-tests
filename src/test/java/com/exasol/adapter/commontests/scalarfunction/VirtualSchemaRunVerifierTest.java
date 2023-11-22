@@ -51,9 +51,9 @@ class VirtualSchemaRunVerifierTest {
     private static Stream<Arguments> quickCheckIfFunctionBehavesSameOnVstestCases() {
         return Stream.of(//
                 Arguments.of("testWithEmptyRuns", "COUNT", Collections.emptyList(), true), //
-                Arguments.of("testWithSingleSuccesfulRun", "COUNT", getSingleRunListWith("*", 0), true), //
+                Arguments.of("testWithSingleSuccessfulRun", "COUNT", getSingleRunListWith("*", 0), true), //
                 Arguments.of("testWithSingleFailingRun", "COUNT", getSingleRunListWith("*", 1), false), //
-                Arguments.of("testWithMultipleSuccesfulRuns", "COUNT", getMultipleRunsWith("*", 0), true), //
+                Arguments.of("testWithMultipleSuccessfulRuns", "COUNT", getMultipleRunsWith("*", 0), true), //
                 Arguments.of("testWithMultipleFailingRuns", "COUNT", getMultipleRunsWith("*", 1), false), //
                 Arguments.of("testWithMultipleRunsOneFailingAndOneSuccessful", "COUNT",
                         List.of(getRunWith("*", 0), getRunWith("*", 1)), false), //
