@@ -489,6 +489,9 @@ public abstract class ScalarFunctionsTestBase {
         });
     }
 
+    /**
+     * Declare necessary setup needed to be done in the derived class in the @BeforeAll in this method.
+     */
     protected abstract void beforeAllSetup() throws SQLException;
 
     @AfterAll
@@ -498,6 +501,9 @@ public abstract class ScalarFunctionsTestBase {
         afterAllTeardown();
     }
 
+    /**
+     * Declare necessary teardown needed to be done in the derived class in the @AfterAll in this method.
+     */
     protected abstract void afterAllTeardown() throws SQLException;
 
     private List<String> getColumnsOfTable(final String tableName) {
