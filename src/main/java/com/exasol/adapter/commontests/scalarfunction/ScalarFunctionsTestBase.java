@@ -474,6 +474,7 @@ public abstract class ScalarFunctionsTestBase {
     private VirtualSchemaTestSetup virtualSchemaTestSetup;
 
     @BeforeAll
+    @SuppressWarnings("java:S2077") // No risk of SQL injection since it's only used in tests.
     void beforeAllTests() throws SQLException {
         beforeAllSetup();
         this.virtualSchemaTestSetup = createVirtualSchemaTestSetup();
