@@ -40,11 +40,13 @@ import com.exasol.matcher.TypeMatchMode;
  */
 @SuppressWarnings("java:S5786") // class is public since it is an abstract test
 @Execution(value = ExecutionMode.CONCURRENT)
+@TestInstance(PER_CLASS)
 public abstract class ScalarFunctionsTestBase {
     private static final String MY_COLUMN = "MY_COLUMN";
     private static final String MY_TABLE = "MY_TABLE";
     /**
-     * These functions are tested separately in {@link ScalarFunctionsTestBase#testFunctionsWithNoParenthesis(String)} )}
+     * These functions are tested separately in {@link ScalarFunctionsTestBase#testFunctionsWithNoParenthesis(String)}
+     * )}
      */
     private static final Set<String> FUNCTIONS_WITH_NO_PARENTHESIS = Set.of("localtimestamp", "sysdate",
             "current_schema", "current_statement", "current_session", "current_date", "current_user",
@@ -445,140 +447,141 @@ public abstract class ScalarFunctionsTestBase {
     }
 
     /**
-     * This test automatically finds parameter combinations by permuting a set of different values. Then it verifies
-     * that on of the parameter combinations that did not cause an exception in on a regular Exasol table, succeeds on
-     * the virtual schema table. In addition, this test asserts that all queries that succeed on the virtual and the
-     * regular table have the same result.
+     * 
+     * The testScalarFunctions test automatically finds parameter combinations by permuting a set of different values.
+     * Then it verifies that on of the parameter combinations that did not cause an exception in on a regular Exasol
+     * table, succeeds on the virtual schema table. In addition, this test asserts that all queries that succeed on the
+     * virtual and the regular table have the same result.
      * <p>
-     * !!!! These tests uses a caching mechanism that requires an
+     * !!!! These tests use a caching mechanism that requires an
      * oracle-virtual-schema/src/test/resources/integration/scalarFunctionsParameterCache.yml file to exist. It's also
      * possible you got to manually delete the contents of this file after making changes for the tests to work.
      * </p>
      */
-    @Nested
-    @TestInstance(PER_CLASS)
-    @Execution(value = ExecutionMode.CONCURRENT)
+
+    private List<String> columnsWithType;
+    private ScalarFunctionsParameterCache parameterCache;
+    private ScalarFunctionParameterFinder parameterFinder;
+    private VirtualSchemaRunVerifier virtualSchemaRunVerifier;
+    private final List<DataTypeWithExampleValue> dataTypeWithExampleValues = List.of(
+            new DataTypeWithExampleValue(DataType.createDouble(), 0.5),
+            new DataTypeWithExampleValue(DataType.createDecimal(18, 0), 2),
+            new DataTypeWithExampleValue(DataType.createDecimal(18, 3), 3.141),
+            new DataTypeWithExampleValue(DataType.createBool(), true),
+            new DataTypeWithExampleValue(DataType.createVarChar(2, DataType.ExaCharset.UTF8), "a"),
+            new DataTypeWithExampleValue(DataType.createDate(), new Date(1000)),
+            new DataTypeWithExampleValue(DataType.createTimestamp(false), new Timestamp(1001)));
+    private VirtualSchemaTestSetup virtualSchemaTestSetup;
+
+    @BeforeAll
+    void beforeAllTests() throws SQLException {
+        beforeAllSetup();
+        this.virtualSchemaTestSetup = createVirtualSchemaTestSetup();
+        runOnExasol(statement -> {
+            statement.executeUpdate("CREATE SCHEMA " + LOCAL_COPY_SCHEMA);
+            final String testTable = this.virtualSchemaTestSetup.getFullyQualifiedName() + ".\"" + MY_TABLE + "\"";
+            statement.executeUpdate("CREATE TABLE " + LOCAL_COPY_FULL_TABLE_NAME + " as SELECT * FROM " + testTable);
+            this.columnsWithType = getColumnsOfTable(LOCAL_COPY_FULL_TABLE_NAME);
+            this.parameterCache = new ScalarFunctionsParameterCache();
+            this.parameterFinder = new ScalarFunctionParameterFinder(this.columnsWithType,
+                    new ScalarFunctionQueryBuilder(LOCAL_COPY_FULL_TABLE_NAME), this.parameterCache);
+            this.virtualSchemaRunVerifier = new VirtualSchemaRunVerifier(new ScalarFunctionQueryBuilder(testTable));
+        });
+    }
+
+    protected abstract void beforeAllSetup() throws SQLException;
+
+    @AfterAll
+    void afterAllTests() throws SQLException {
+        runOnExasol(statement -> statement.executeUpdate("DROP SCHEMA " + LOCAL_COPY_SCHEMA + " CASCADE"));
+        this.virtualSchemaTestSetup.close();
+        afterAllTeardown();
+    }
+
+    protected abstract void afterAllTeardown() throws SQLException;
+
+    private List<String> getColumnsOfTable(final String tableName) {
+        final List<String> names = new ArrayList<>();
+        runOnExasol(statement -> {
+            try (final ResultSet resultSet = statement.executeQuery("SELECT * FROM " + tableName)) {
+                final ResultSetMetaData metaData = resultSet.getMetaData();
+                final int columnCount = metaData.getColumnCount();
+                for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
+                    names.add("\"" + metaData.getColumnName(columnIndex) + "\"");
+                }
+            }
+        });
+        return names;
+    }
+
+    private VirtualSchemaTestSetup createVirtualSchemaTestSetup() {
+        final List<Column> columns = createColumns();
+        final List<Object> rowWithExampleValues = this.dataTypeWithExampleValues.stream()
+                .map(DataTypeWithExampleValue::getExampleValue).collect(Collectors.toList());
+        final CreateVirtualSchemaTestSetupRequest request = new CreateVirtualSchemaTestSetupRequest(
+                TableRequest.builder(MY_TABLE).columns(columns).row(rowWithExampleValues).build());
+        return getTestSetup().getVirtualSchemaTestSetupProvider().createSingleTableVirtualSchemaTestSetup(request);
+    }
+
+    private List<Column> createColumns() {
+        int counter = 0;
+        final List<Column> columns = new ArrayList<>();
+        for (final DataTypeWithExampleValue dataTypeWithExampleValue : this.dataTypeWithExampleValues) {
+            final String type = getTestSetup().getExternalTypeFor(dataTypeWithExampleValue.getExasolDataType());
+            final String columnName = type.replace(" ", "_").replace(",", "_").replace("(", "").replace(")", "") + "_C"
+                    + counter;
+            final Column column = new Column(columnName, type);
+            columns.add(column);
+            counter++;
+        }
+        return columns;
+    }
+
+    /**
+     * Test for most of the scalar functions. Since there are so many, it's too much effort to write all parameter
+     * combinations here. Instead this test tries all permutations on an Exasol table and in case they do not cause an
+     * exception asserts that they produce the same result on the virtual schema table.
+     *
+     * @param function function to test
+     */
     @Tag("WithAutomaticParameterDiscovery")
-    class WithAutomaticParameterDiscovery {
-        private List<String> columnsWithType;
-        private ScalarFunctionsParameterCache parameterCache;
-        private ScalarFunctionParameterFinder parameterFinder;
-        private VirtualSchemaRunVerifier virtualSchemaRunVerifier;
-        private final List<DataTypeWithExampleValue> dataTypeWithExampleValues = List.of(
-                new DataTypeWithExampleValue(DataType.createDouble(), 0.5),
-                new DataTypeWithExampleValue(DataType.createDecimal(18, 0), 2),
-                new DataTypeWithExampleValue(DataType.createDecimal(18, 3), 3.141),
-                new DataTypeWithExampleValue(DataType.createBool(), true),
-                new DataTypeWithExampleValue(DataType.createVarChar(2, DataType.ExaCharset.UTF8), "a"),
-                new DataTypeWithExampleValue(DataType.createDate(), new Date(1000)),
-                new DataTypeWithExampleValue(DataType.createTimestamp(false), new Timestamp(1001)));
-        private VirtualSchemaTestSetup virtualSchemaTestSetup;
-
-        @BeforeAll
-        void beforeAll() {
-            this.virtualSchemaTestSetup = createVirtualSchemaTestSetup();
-            runOnExasol(statement -> {
-                statement.executeUpdate("CREATE SCHEMA " + LOCAL_COPY_SCHEMA);
-                final String testTable = this.virtualSchemaTestSetup.getFullyQualifiedName() + ".\"" + MY_TABLE + "\"";
-                statement
-                        .executeUpdate("CREATE TABLE " + LOCAL_COPY_FULL_TABLE_NAME + " as SELECT * FROM " + testTable);
-                this.columnsWithType = getColumnsOfTable(LOCAL_COPY_FULL_TABLE_NAME);
-                this.parameterCache = new ScalarFunctionsParameterCache();
-                this.parameterFinder = new ScalarFunctionParameterFinder(this.columnsWithType,
-                        new ScalarFunctionQueryBuilder(LOCAL_COPY_FULL_TABLE_NAME), this.parameterCache);
-                this.virtualSchemaRunVerifier = new VirtualSchemaRunVerifier(new ScalarFunctionQueryBuilder(testTable));
-            });
-        }
-
-        private List<String> getColumnsOfTable(final String tableName) {
-            final List<String> names = new ArrayList<>();
-            runOnExasol(statement -> {
-                try (final ResultSet resultSet = statement.executeQuery("SELECT * FROM " + tableName)) {
-                    final ResultSetMetaData metaData = resultSet.getMetaData();
-                    final int columnCount = metaData.getColumnCount();
-                    for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
-                        names.add("\"" + metaData.getColumnName(columnIndex) + "\"");
-                    }
-                }
-            });
-            return names;
-        }
-
-        private VirtualSchemaTestSetup createVirtualSchemaTestSetup() {
-            final List<Column> columns = createColumns();
-            final List<Object> rowWithExampleValues = this.dataTypeWithExampleValues.stream()
-                    .map(DataTypeWithExampleValue::getExampleValue).collect(Collectors.toList());
-            final CreateVirtualSchemaTestSetupRequest request = new CreateVirtualSchemaTestSetupRequest(
-                    TableRequest.builder(MY_TABLE).columns(columns).row(rowWithExampleValues).build());
-            return getTestSetup().getVirtualSchemaTestSetupProvider().createSingleTableVirtualSchemaTestSetup(request);
-        }
-
-        private List<Column> createColumns() {
-            int counter = 0;
-            final List<Column> columns = new ArrayList<>();
-            for (final DataTypeWithExampleValue dataTypeWithExampleValue : this.dataTypeWithExampleValues) {
-                final String type = getTestSetup().getExternalTypeFor(dataTypeWithExampleValue.getExasolDataType());
-                final String columnName = type.replace(" ", "_").replace(",", "_").replace("(", "").replace(")", "")
-                        + "_C" + counter;
-                final Column column = new Column(columnName, type);
-                columns.add(column);
-                counter++;
-            }
-            return columns;
-        }
-
-        @AfterAll
-        void afterAll() throws SQLException {
-            runOnExasol(statement -> statement.executeUpdate("DROP SCHEMA " + LOCAL_COPY_SCHEMA + " CASCADE"));
-            this.virtualSchemaTestSetup.close();
-        }
-
-        /**
-         * Test for most of the scalar functions. Since there are so many, it's too much effort to write all parameter
-         * combinations here. Instead this test tries all permutations on an Exasol table and in case they do not cause
-         * an exception asserts that they produce the same result on the virtual schema table.
-         *
-         * @param function function to test
-         */
-        @ParameterizedTest
-        @MethodSource("getScalarFunctions")
-        void testScalarFunctions(final String function) {
-            runOnExasol(statement -> {
-                final List<ScalarFunctionLocalRun> successfulScalarFunctionLocalRuns = this.parameterFinder
-                        .findOrGetFittingParameters(function, statement);
-                if (successfulScalarFunctionLocalRuns.isEmpty()) {
-                    throw new IllegalStateException(ExaError.messageBuilder("E-VSSIT-2")
-                            .message("None of the parameter combinations have lead to a successful run.").toString());
+    @ParameterizedTest
+    @MethodSource("getScalarFunctions")
+    void testScalarFunctions(final String function) {
+        runOnExasol(statement -> {
+            final List<ScalarFunctionLocalRun> successfulScalarFunctionLocalRuns = this.parameterFinder
+                    .findOrGetFittingParameters(function, statement);
+            if (successfulScalarFunctionLocalRuns.isEmpty()) {
+                throw new IllegalStateException(ExaError.messageBuilder("E-VSSIT-2")
+                        .message("None of the parameter combinations have lead to a successful run.").toString());
+            } else {
+                final List<ScalarFunctionLocalRun> filteredRuns = successfulScalarFunctionLocalRuns.stream()
+                        .filter(run -> !isTestDisabledFor(getExcludeKey(function, run))).collect(Collectors.toList());
+                this.parameterCache.removeFunction(function);
+                if (!this.virtualSchemaRunVerifier.quickCheckIfFunctionBehavesSameOnVs(function, filteredRuns,
+                        statement)) {
+                    LOGGER.log(Level.FINE, "Quick test failed for {0}. Running full checks.", function);
+                    final List<String> successfulParameters = this.virtualSchemaRunVerifier
+                            .assertFunctionBehavesSameOnVirtualSchema(function, filteredRuns, statement);
+                    this.parameterCache.setFunctionsValidParameterCombinations(function, successfulParameters);
                 } else {
-                    final List<ScalarFunctionLocalRun> filteredRuns = successfulScalarFunctionLocalRuns.stream()
-                            .filter(run -> !isTestDisabledFor(getExcludeKey(function, run)))
-                            .collect(Collectors.toList());
-                    this.parameterCache.removeFunction(function);
-                    if (!this.virtualSchemaRunVerifier.quickCheckIfFunctionBehavesSameOnVs(function, filteredRuns,
-                            statement)) {
-                        LOGGER.log(Level.FINE, "Quick test failed for {0}. Running full checks.", function);
-                        final List<String> successfulParameters = this.virtualSchemaRunVerifier
-                                .assertFunctionBehavesSameOnVirtualSchema(function, filteredRuns, statement);
-                        this.parameterCache.setFunctionsValidParameterCombinations(function, successfulParameters);
-                    } else {
-                        this.parameterCache.setFunctionsValidParameterCombinations(function, filteredRuns.stream()
-                                .map(ScalarFunctionLocalRun::getParameters).collect(Collectors.toList()));
-                    }
-                    this.parameterCache.flush();
+                    this.parameterCache.setFunctionsValidParameterCombinations(function, filteredRuns.stream()
+                            .map(ScalarFunctionLocalRun::getParameters).collect(Collectors.toList()));
                 }
-            });
-        }
-
-        Stream<Arguments> getScalarFunctions() {
-            try (final Connection exasolConnection = getTestSetup().createExasolConnection()) {
-                return new ScalarFunctionProvider().getScalarFunctions(exasolConnection).stream()//
-                        .filter(function -> !EXCLUDED_SCALAR_FUNCTIONS.contains(function)
-                                && !isTestDisabledFor(function) && !FUNCTIONS_WITH_NO_PARENTHESIS.contains(function))//
-                        .map(Arguments::of);
-            } catch (final SQLException exception) {
-                throw new IllegalStateException(ExaError.messageBuilder("E-VSSIT-8")
-                        .message("Failed to get supported scalar functions.").toString(), exception);
+                this.parameterCache.flush();
             }
+        });
+    }
+
+    Stream<Arguments> getScalarFunctions() {
+        try (final Connection exasolConnection = getTestSetup().createExasolConnection()) {
+            return new ScalarFunctionProvider().getScalarFunctions(exasolConnection).stream()//
+                    .filter(function -> !EXCLUDED_SCALAR_FUNCTIONS.contains(function) && !isTestDisabledFor(function)
+                            && !FUNCTIONS_WITH_NO_PARENTHESIS.contains(function))//
+                    .map(Arguments::of);
+        } catch (final SQLException exception) {
+            throw new IllegalStateException(ExaError.messageBuilder("E-VSSIT-8")
+                    .message("Failed to get supported scalar functions.").toString(), exception);
         }
     }
 
