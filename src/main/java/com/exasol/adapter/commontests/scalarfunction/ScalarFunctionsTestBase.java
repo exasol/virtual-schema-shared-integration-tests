@@ -491,6 +491,8 @@ public abstract class ScalarFunctionsTestBase {
 
     /**
      * Declare necessary setup needed to be done in the derived class in the @BeforeAll in this method.
+     * 
+     * @throws SQLException if underlying setup fails
      */
     protected abstract void beforeAllSetup() throws SQLException;
 
@@ -503,6 +505,8 @@ public abstract class ScalarFunctionsTestBase {
 
     /**
      * Declare necessary teardown needed to be done in the derived class in the @AfterAll in this method.
+     * 
+     * @throws SQLException if underlying teardown fails
      */
     protected abstract void afterAllTeardown() throws SQLException;
 
