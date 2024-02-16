@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>virtual-schema-shared-integration-tests</artifactId>
-    <version>2.2.6</version>
+    <version>3.0.0</version>
     <name>virtual-schema-shared-integration-tests</name>
     <description>Abstract integration tests for virtual schemas</description>
     <url>https://github.com/exasol/virtual-schema-shared-integration-tests/</url>
@@ -47,7 +46,8 @@
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId><!-- Required for container log output -->
+            <artifactId>slf4j-simple</artifactId>
+            <!-- Required for container log output -->
             <version>2.0.9</version>
             <scope>test</scope>
         </dependency>
@@ -89,7 +89,7 @@
             <plugin>
                 <groupId>com.exasol</groupId>
                 <artifactId>project-keeper-maven-plugin</artifactId>
-                <version>2.9.16</version>
+                <version>3.0.1</version>
                 <executions>
                     <execution>
                         <goals>
@@ -113,7 +113,7 @@
     <parent>
         <artifactId>virtual-schema-shared-integration-tests-generated-parent</artifactId>
         <groupId>com.exasol</groupId>
-        <version>2.2.6</version>
+        <version>3.0.0</version>
         <relativePath>pk_generated_parent.pom</relativePath>
     </parent>
 </project>

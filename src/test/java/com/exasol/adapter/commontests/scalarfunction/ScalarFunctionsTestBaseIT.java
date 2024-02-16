@@ -4,8 +4,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -29,20 +27,9 @@ public class ScalarFunctionsTestBaseIT extends ScalarFunctionsTestBase
     @Container
     private static final ExasolContainer<? extends ExasolContainer<?>> CONTAINER = new ExasolContainer<>()
             .withReuse(true);
+
     private static Connection connection;
     private static ExasolObjectFactory exasolObjectFactory;
-
-    @BeforeAll
-    static void beforeAll() throws SQLException {
-        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-        connection = CONTAINER.createConnection();
-        exasolObjectFactory = new ExasolObjectFactory(connection);
-    }
-
-    @AfterAll
-    static void afterAll() throws SQLException {
-        connection.close();
-    }
 
     @Override
     protected TestSetup getTestSetup() {
@@ -106,5 +93,17 @@ public class ScalarFunctionsTestBaseIT extends ScalarFunctionsTestBase
         public void close() throws SQLException {
             this.schema.drop();
         }
+    }
+
+    @Override
+    protected void beforeAllSetup() throws SQLException {
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+        connection = CONTAINER.createConnection();
+        exasolObjectFactory = new ExasolObjectFactory(connection);
+    }
+
+    @Override
+    protected void afterAllTeardown() throws SQLException {
+        connection.close();
     }
 }
