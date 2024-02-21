@@ -17,6 +17,10 @@ Previously you had to run the encompassing derived integration test class based 
 
 ## Dependency Updates
 
+### Test Dependency Updates
+
+* Updated `com.exasol:exasol-testcontainers:7.0.0` to `7.0.1`
+
 ### Plugin Dependency Updates
 
 * Updated `com.exasol:project-keeper-maven-plugin:2.9.16` to `3.0.1`
