@@ -1,4 +1,4 @@
-# Virtual Schema Shared Integration Tests 3.0.0, released 2024-02-19
+# Virtual Schema Shared Integration Tests 3.0.0, released 2024-02-21
 
 Code name: testScalarFunctions directly executable in test runners.
 
@@ -16,6 +16,10 @@ Previously you had to run the encompassing derived integration test class based 
 - #36: Make testScalarFunctions directly executable in test runners.
 
 ## Dependency Updates
+
+### Test Dependency Updates
+
+* Updated `com.exasol:exasol-testcontainers:7.0.0` to `7.0.1`
 
 ### Plugin Dependency Updates
 
