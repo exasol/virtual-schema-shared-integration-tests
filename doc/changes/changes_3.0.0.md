@@ -1,4 +1,4 @@
-# Virtual Schema Shared Integration Tests 3.0.0, released 2024-02-19
+# Virtual Schema Shared Integration Tests 3.0.0, released 2024-02-21
 
 Code name: testScalarFunctions directly executable in test runners.
 
