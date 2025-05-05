@@ -18,7 +18,7 @@
 | Dependency                                                  | License           |
 | ----------------------------------------------------------- | ----------------- |
 | [Test containers for Exasol on Docker][12]                  | [MIT License][13] |
-| [SLF4J Simple Provider][14]                                 | [MIT][15]         |
+| [SLF4J JDK14 Provider][14]                                  | [MIT][15]         |
 | [Testcontainers :: JUnit Jupiter Extension][16]             | [MIT][17]         |
 | [Test Database Builder for Java][18]                        | [MIT License][19] |
 | [mockito-junit-jupiter][20]                                 | [MIT][21]         |

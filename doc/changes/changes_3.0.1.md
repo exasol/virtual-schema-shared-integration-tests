@@ -31,7 +31,8 @@ This release fixes vulnerability CVE-2024-55551 in `com.exasol:exasol-jdbc` and 
 * Updated `com.exasol:exasol-testcontainers:7.0.1` to `7.1.4`
 * Updated `com.exasol:test-db-builder-java:3.5.2` to `3.6.0`
 * Updated `org.mockito:mockito-junit-jupiter:5.7.0` to `5.17.0`
-* Updated `org.slf4j:slf4j-simple:2.0.9` to `2.0.17`
+* Added `org.slf4j:slf4j-jdk14:2.0.17`
+* Removed `org.slf4j:slf4j-simple:2.0.9`
 * Updated `org.testcontainers:junit-jupiter:1.19.3` to `1.21.0`
 
 ### Plugin Dependency Updates
