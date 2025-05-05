@@ -42,6 +42,7 @@ import com.exasol.matcher.TypeMatchMode;
 @Execution(value = ExecutionMode.CONCURRENT)
 @TestInstance(PER_CLASS)
 public abstract class ScalarFunctionsTestBase {
+    private static final int TIMESTAMP_PRECISION = 3;
     private static final String MY_COLUMN = "MY_COLUMN";
     private static final String MY_TABLE = "MY_TABLE";
     /**
@@ -411,7 +412,8 @@ public abstract class ScalarFunctionsTestBase {
     }
 
     private VirtualSchemaTestSetup getTimestampVirtualSchema(final Timestamp valueForSingleRow) {
-        return buildVirtualSchemaTableWithColumnOfExasolType(DataType.createTimestamp(false), valueForSingleRow);
+        return buildVirtualSchemaTableWithColumnOfExasolType(DataType.createTimestamp(false, TIMESTAMP_PRECISION),
+                valueForSingleRow);
     }
 
     @Test
@@ -470,7 +472,7 @@ public abstract class ScalarFunctionsTestBase {
             new DataTypeWithExampleValue(DataType.createBool(), true),
             new DataTypeWithExampleValue(DataType.createVarChar(2, DataType.ExaCharset.UTF8), "a"),
             new DataTypeWithExampleValue(DataType.createDate(), new Date(1000)),
-            new DataTypeWithExampleValue(DataType.createTimestamp(false), new Timestamp(1001)));
+            new DataTypeWithExampleValue(DataType.createTimestamp(false, TIMESTAMP_PRECISION), new Timestamp(1001)));
     private VirtualSchemaTestSetup virtualSchemaTestSetup;
 
     @BeforeAll
