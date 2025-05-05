@@ -1,12 +1,18 @@
-# Virtual Schema Shared Integration Tests 3.0.1, released 2025-??-??
+# Virtual Schema Shared Integration Tests 3.0.1, released 2025-05-05
 
-Code name:
+Code name: Fixed CVE-2024-55551 in com.exasol:exasol-jdbc
 
 ## Summary
 
-## Features
+This release fixes vulnerability CVE-2024-55551 in `com.exasol:exasol-jdbc` and fixes an issue with JUnit dependencies that caused tests to fail when using the latest `maven-surefire-plugin`.
 
-* ISSUE_NUMBER: description
+## Security
+
+* #44: Fixed CVE-2024-55551 in `com.exasol:exasol-jdbc`
+
+## Bugfixes
+
+* #43: Remove unwanted dependency on `org.junit.jupiter:junit-jupiter-engine`
 
 ## Dependency Updates
 
@@ -16,6 +22,7 @@ Code name:
 * Updated `com.exasol:virtual-schema-common-java:17.0.1` to `17.1.0`
 * Updated `org.hamcrest:hamcrest:2.2` to `3.0`
 * Added `org.junit.jupiter:junit-jupiter-api:5.12.2`
+* Added `org.junit.jupiter:junit-jupiter-params:5.12.2`
 * Removed `org.junit.jupiter:junit-jupiter:5.10.1`
 * Updated `org.yaml:snakeyaml:2.2` to `2.4`
 

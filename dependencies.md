@@ -9,6 +9,7 @@
 | [SnakeYAML][2]                                         | [Apache License, Version 2.0][3] |
 | [error-reporting-java][4]                              | [MIT License][5]                 |
 | [JUnit Jupiter API][6]                                 | [Eclipse Public License v2.0][7] |
+| [JUnit Jupiter Params][6]                              | [Eclipse Public License v2.0][7] |
 | [Hamcrest][8]                                          | [BSD-3-Clause][9]                |
 | [Common module of Exasol Virtual Schemas Adapters][10] | [The MIT License (MIT)][11]      |
 
