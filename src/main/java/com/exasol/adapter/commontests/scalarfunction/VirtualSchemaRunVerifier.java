@@ -57,7 +57,9 @@ public class VirtualSchemaRunVerifier {
         }
         if (hadMismatches) {
             throw new IllegalStateException(ExaError.messageBuilder("E-VSSIT-10")
-                    .message("Some runs of this function had different output. See above log messages.").toString());
+                    .message("Some runs of function {{function name}} had different output. See above log messages.",
+                            function)
+                    .toString());
         }
         if (successParameters.isEmpty()) {
             fail(ExaError.messageBuilder("E-VSSIT-5").message(
@@ -133,7 +135,7 @@ public class VirtualSchemaRunVerifier {
                 return false;
             }
         }
-        LOGGER.fine("Quick check was successful");
+        LOGGER.log(Level.FINE, "Quick check for {0} was successful", function);
         return true;
     }
 

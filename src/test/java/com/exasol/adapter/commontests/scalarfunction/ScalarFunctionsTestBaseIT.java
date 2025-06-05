@@ -25,6 +25,7 @@ import com.exasol.dbbuilder.dialects.exasol.ExasolSchema;
 public class ScalarFunctionsTestBaseIT extends ScalarFunctionsTestBase
         implements TestSetup, VirtualSchemaTestSetupProvider {
     @Container
+    @SuppressWarnings("resource") // Will be closed by Testcontainers
     private static final ExasolContainer<? extends ExasolContainer<?>> CONTAINER = new ExasolContainer<>()
             .withReuse(true);
 

@@ -16,6 +16,7 @@ import com.exasol.containers.ExasolContainer;
 @Testcontainers
 class ScalarFunctionProviderIT {
     @Container
+    @SuppressWarnings("resource") // Will be closed by Testcontainers
     private static final ExasolContainer<? extends ExasolContainer<?>> CONTAINER = new ExasolContainer<>()
             .withReuse(true);
 
