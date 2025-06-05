@@ -86,14 +86,14 @@ public class ScalarFunctionParameterFinder {
         if (this.parameterCache.hasParametersForFunction(function)) {
             final List<ScalarFunctionLocalRun> fittingParameters = findFittingParameters(function,
                     this.parameterCache.getFunctionsValidParameterCombinations(function).stream(), statement);
-            LOGGER.fine(() -> String.format("Using %d parameters from parameter cache for function '%s': %s",
-                    fittingParameters.size(), function, fittingParameters));
+            LOGGER.fine(() -> String.format("Using %d parameters from parameter cache for function '%s'",
+                    fittingParameters.size(), function));
             return fittingParameters;
         } else {
             final List<ScalarFunctionLocalRun> fittingParameters = findFittingParameters(function, statement);
             LOGGER.fine(
-                    () -> String.format("Using %d generated parameters for function '%s': %s", fittingParameters.size(),
-                            function, fittingParameters));
+                    () -> String.format("Using %d generated parameters for function '%s'", fittingParameters.size(),
+                            function));
             return fittingParameters;
         }
     }
