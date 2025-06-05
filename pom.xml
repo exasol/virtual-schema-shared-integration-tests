@@ -2,18 +2,18 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>virtual-schema-shared-integration-tests</artifactId>
-    <version>3.0.1</version>
+    <version>3.0.2</version>
     <name>virtual-schema-shared-integration-tests</name>
     <description>Abstract integration tests for virtual schemas</description>
     <url>https://github.com/exasol/virtual-schema-shared-integration-tests/</url>
     <properties>
-        <junit.version>5.12.2</junit.version>
+        <junit.version>5.13.0</junit.version>
     </properties>
     <dependencies>
         <dependency>
             <groupId>com.exasol</groupId>
             <artifactId>hamcrest-resultset-matcher</artifactId>
-            <version>1.7.0</version>
+            <version>1.7.1</version>
         </dependency>
         <dependency>
             <groupId>org.yaml</groupId>
@@ -49,7 +49,7 @@
         <dependency>
             <groupId>com.exasol</groupId>
             <artifactId>exasol-testcontainers</artifactId>
-            <version>7.1.4</version>
+            <version>7.1.5</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -62,19 +62,19 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>1.21.0</version>
+            <version>1.21.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.exasol</groupId>
             <artifactId>test-db-builder-java</artifactId>
-            <version>3.6.0</version>
+            <version>3.6.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
-            <version>5.17.0</version>
+            <version>5.18.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -100,7 +100,7 @@
             <plugin>
                 <groupId>com.exasol</groupId>
                 <artifactId>project-keeper-maven-plugin</artifactId>
-                <version>5.0.1</version>
+                <version>5.1.0</version>
                 <executions>
                     <execution>
                         <goals>
@@ -126,7 +126,7 @@
     <parent>
         <artifactId>virtual-schema-shared-integration-tests-generated-parent</artifactId>
         <groupId>com.exasol</groupId>
-        <version>3.0.1</version>
+        <version>3.0.2</version>
         <relativePath>pk_generated_parent.pom</relativePath>
     </parent>
 </project>

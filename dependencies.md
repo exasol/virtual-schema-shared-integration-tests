@@ -82,7 +82,7 @@
 [25]: https://maven.apache.org/plugins/maven-install-plugin/
 [26]: https://maven.apache.org/plugins/maven-resources-plugin/
 [27]: https://maven.apache.org/plugins/maven-site-plugin/
-[28]: http://docs.sonarqube.org/display/PLUG/Plugin+Library/sonar-maven-plugin
+[28]: http://docs.sonarqube.org/display/PLUG/Plugin+Library/sonar-scanner-maven/sonar-maven-plugin
 [29]: http://www.gnu.org/licenses/lgpl.txt
 [30]: https://maven.apache.org/plugins/maven-toolchains-plugin/
 [31]: https://maven.apache.org/plugins/maven-compiler-plugin/
