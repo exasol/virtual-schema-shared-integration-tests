@@ -3,7 +3,6 @@ package com.exasol.adapter.commontests.scalarfunction;
 import java.sql.*;
 import java.util.*;
 import java.util.function.Function;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -85,12 +84,17 @@ public class ScalarFunctionParameterFinder {
      */
     public List<ScalarFunctionLocalRun> findOrGetFittingParameters(final String function, final Statement statement) {
         if (this.parameterCache.hasParametersForFunction(function)) {
-            LOGGER.log(Level.FINE, "Using parameters from parameter cache for function {0}.", function);
-            return findFittingParameters(function,
+            final List<ScalarFunctionLocalRun> fittingParameters = findFittingParameters(function,
                     this.parameterCache.getFunctionsValidParameterCombinations(function).stream(), statement);
+            LOGGER.fine(() -> String.format("Using %d parameters from parameter cache for function '%s': %s",
+                    fittingParameters.size(), function, fittingParameters));
+            return fittingParameters;
         } else {
-            LOGGER.log(Level.FINE, "Using generated parameters for function {0}.", function);
-            return findFittingParameters(function, statement);
+            final List<ScalarFunctionLocalRun> fittingParameters = findFittingParameters(function, statement);
+            LOGGER.fine(
+                    () -> String.format("Using %d generated parameters for function '%s': %s", fittingParameters.size(),
+                            function, fittingParameters));
+            return fittingParameters;
         }
     }
 

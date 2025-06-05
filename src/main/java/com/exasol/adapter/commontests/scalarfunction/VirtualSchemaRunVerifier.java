@@ -130,12 +130,12 @@ public class VirtualSchemaRunVerifier {
                 if (!buildResultMatcher(batch).matches(actualResult)) {
                     return false;
                 }
-                LOGGER.log(Level.FINE, "Quick check query was successful: {0}", virtualSchemaQuery);
+                LOGGER.fine(() -> String.format("Quick check query for function '%s' was successful: %s", function,
+                        virtualSchemaQuery));
             } catch (final SQLException exception) {
                 return false;
             }
         }
-        LOGGER.log(Level.FINE, "Quick check for {0} was successful", function);
         return true;
     }
 
