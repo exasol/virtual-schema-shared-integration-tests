@@ -47,12 +47,12 @@
 | [Apache Maven GPG Plugin][43]                           | [Apache-2.0][24]                            |
 | [Apache Maven Source Plugin][44]                        | [Apache License, Version 2.0][24]           |
 | [Apache Maven Javadoc Plugin][45]                       | [Apache-2.0][24]                            |
-| [Nexus Staging Maven Plugin][46]                        | [Eclipse Public License][47]                |
-| [Maven Failsafe Plugin][48]                             | [Apache-2.0][24]                            |
-| [JaCoCo :: Maven Plugin][49]                            | [EPL-2.0][50]                               |
-| [Quality Summarizer Maven Plugin][51]                   | [MIT License][52]                           |
-| [error-code-crawler-maven-plugin][53]                   | [MIT License][54]                           |
-| [Git Commit Id Maven Plugin][55]                        | [GNU Lesser General Public License 3.0][56] |
+| [Central Publishing Maven Plugin][46]                   | [The Apache License, Version 2.0][24]       |
+| [Maven Failsafe Plugin][47]                             | [Apache-2.0][24]                            |
+| [JaCoCo :: Maven Plugin][48]                            | [EPL-2.0][49]                               |
+| [Quality Summarizer Maven Plugin][50]                   | [MIT License][51]                           |
+| [error-code-crawler-maven-plugin][52]                   | [MIT License][53]                           |
+| [Git Commit Id Maven Plugin][54]                        | [GNU Lesser General Public License 3.0][55] |
 
 [0]: https://github.com/exasol/hamcrest-resultset-matcher/
 [1]: https://github.com/exasol/hamcrest-resultset-matcher/blob/main/LICENSE
@@ -82,7 +82,7 @@
 [25]: https://maven.apache.org/plugins/maven-install-plugin/
 [26]: https://maven.apache.org/plugins/maven-resources-plugin/
 [27]: https://maven.apache.org/plugins/maven-site-plugin/
-[28]: http://docs.sonarqube.org/display/PLUG/Plugin+Library/sonar-maven-plugin
+[28]: http://docs.sonarqube.org/display/PLUG/Plugin+Library/sonar-scanner-maven/sonar-maven-plugin
 [29]: http://www.gnu.org/licenses/lgpl.txt
 [30]: https://maven.apache.org/plugins/maven-toolchains-plugin/
 [31]: https://maven.apache.org/plugins/maven-compiler-plugin/
@@ -100,14 +100,13 @@
 [43]: https://maven.apache.org/plugins/maven-gpg-plugin/
 [44]: https://maven.apache.org/plugins/maven-source-plugin/
 [45]: https://maven.apache.org/plugins/maven-javadoc-plugin/
-[46]: http://www.sonatype.com/public-parent/nexus-maven-plugins/nexus-staging/nexus-staging-maven-plugin/
-[47]: http://www.eclipse.org/legal/epl-v10.html
-[48]: https://maven.apache.org/surefire/maven-failsafe-plugin/
-[49]: https://www.jacoco.org/jacoco/trunk/doc/maven.html
-[50]: https://www.eclipse.org/legal/epl-2.0/
-[51]: https://github.com/exasol/quality-summarizer-maven-plugin/
-[52]: https://github.com/exasol/quality-summarizer-maven-plugin/blob/main/LICENSE
-[53]: https://github.com/exasol/error-code-crawler-maven-plugin/
-[54]: https://github.com/exasol/error-code-crawler-maven-plugin/blob/main/LICENSE
-[55]: https://github.com/git-commit-id/git-commit-id-maven-plugin
-[56]: http://www.gnu.org/licenses/lgpl-3.0.txt
+[46]: https://central.sonatype.org
+[47]: https://maven.apache.org/surefire/maven-failsafe-plugin/
+[48]: https://www.jacoco.org/jacoco/trunk/doc/maven.html
+[49]: https://www.eclipse.org/legal/epl-2.0/
+[50]: https://github.com/exasol/quality-summarizer-maven-plugin/
+[51]: https://github.com/exasol/quality-summarizer-maven-plugin/blob/main/LICENSE
+[52]: https://github.com/exasol/error-code-crawler-maven-plugin/
+[53]: https://github.com/exasol/error-code-crawler-maven-plugin/blob/main/LICENSE
+[54]: https://github.com/git-commit-id/git-commit-id-maven-plugin
+[55]: http://www.gnu.org/licenses/lgpl-3.0.txt
