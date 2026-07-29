@@ -2,7 +2,6 @@ package com.exasol.adapter.commontests.scalarfunction;
 
 import static com.exasol.matcher.ResultSetStructureMatcher.table;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.math.BigDecimal;
 import java.sql.*;
@@ -13,6 +12,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.hamcrest.Matcher;
+import org.opentest4j.AssertionFailedError;
 
 import com.exasol.errorreporting.ExaError;
 import com.exasol.matcher.CellMatcherFactory;
@@ -47,7 +47,7 @@ public class VirtualSchemaRunVerifier {
     public List<String> assertFunctionBehavesSameOnVirtualSchema(final String function,
             final List<ScalarFunctionLocalRun> runsOnExasol, final Statement statement) {
         final List<String> successParameters = new ArrayList<>();
-        final List<String> failedQueries = new ArrayList<>();
+        final List<FailedQuery> failedQueries = new ArrayList<>();
         boolean hadMismatches = false;
         for (final ScalarFunctionLocalRun scalarFunctionLocalRun : runsOnExasol) {
             if (!assertSingleRunBehavesSameOnVirtualSchema(function, statement, successParameters, failedQueries,
@@ -62,15 +62,21 @@ public class VirtualSchemaRunVerifier {
                     .toString());
         }
         if (successParameters.isEmpty()) {
-            fail(ExaError.messageBuilder("E-VSSIT-5").message(
+            final String detailedErrors = failedQueries.stream()
+                    .map((final FailedQuery fq) -> fq.getQuery() + " -- " + fq.getExceptionMessage())
+                    .collect(Collectors.joining("\n"));
+            final AssertionFailedError error = new AssertionFailedError(ExaError.messageBuilder("E-VSSIT-5").message(
                     "None of the combinations that worked on a native Exasol table worked on the Virtual Schema table. Here is what was tried:\n{{queries|uq}}")
-                    .parameter("queries", String.join("\n", failedQueries)).toString());
+                    .parameter("queries", detailedErrors)
+                    .toString());
+            failedQueries.forEach(fq -> error.addSuppressed(fq.getException()));
+            throw error;
         }
         return successParameters;
     }
 
     private boolean assertSingleRunBehavesSameOnVirtualSchema(final String function, final Statement statement,
-            final List<String> successParameters, final List<String> failedQueries,
+            final List<String> successParameters, final List<FailedQuery> failedQueries,
             final ScalarFunctionLocalRun scalarFunctionLocalRun) {
         final String virtualSchemaQuery = this.virtualSchemaQueryBuilder
                 .buildQueryFor(CALL_BUILDER.buildScalarFunctionCall(function, scalarFunctionLocalRun.getParameters()));
@@ -80,7 +86,7 @@ public class VirtualSchemaRunVerifier {
             }
             successParameters.add(scalarFunctionLocalRun.getParameters());
         } catch (final SQLException exception) {
-            failedQueries.add(virtualSchemaQuery);
+            failedQueries.add(new FailedQuery(virtualSchemaQuery, exception));
             // ignore; probably just a strange parameter combination
         }
         return true;
