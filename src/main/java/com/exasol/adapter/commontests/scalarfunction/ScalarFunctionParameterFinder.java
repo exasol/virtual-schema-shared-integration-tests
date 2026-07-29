@@ -25,7 +25,7 @@ public class ScalarFunctionParameterFinder {
 
     /**
      * Create a new instance of {@link ScalarFunctionParameterFinder}.
-     * 
+     *
      * @param availableColumns  list of available columns in the test table
      * @param localQueryBuilder query builder that builds queries on a regular Exasol table
      * @param parameterCache    disc cache for the parameters
@@ -54,11 +54,11 @@ public class ScalarFunctionParameterFinder {
 
     private static List<String> generateCombination(final Collection<String> availableColumns,
             final List<String> previousIterationParameters) {
-        return previousIterationParameters.stream()//
+        return previousIterationParameters.stream()
                 .flatMap(addPermutation(availableColumns)).collect(Collectors.toList());
     }
 
-    private static Function<String, Stream<? extends String>> addPermutation(
+    private static Function<String, Stream<String>> addPermutation(
             final Collection<String> availableColumns) {
         return smallerCombination -> availableColumns.stream().map(literal -> join(smallerCombination, literal));
     }
@@ -77,7 +77,7 @@ public class ScalarFunctionParameterFinder {
      * If the disc cache contains combinations for this scalar function, this method only returns these. This is an
      * performance optimization, since the cache only contains the runs, that lead to a success on the last run.
      * </p>
-     * 
+     *
      * @param function  scalar function
      * @param statement connection to the exasol database
      * @return list of successful executions
