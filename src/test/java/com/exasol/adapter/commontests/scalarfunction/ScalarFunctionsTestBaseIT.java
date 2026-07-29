@@ -4,8 +4,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 
 import com.exasol.adapter.commontests.scalarfunction.virtualschematestsetup.*;
 import com.exasol.adapter.commontests.scalarfunction.virtualschematestsetup.request.Column;
@@ -21,16 +21,25 @@ import com.exasol.dbbuilder.dialects.exasol.ExasolSchema;
  * This class is a test for {@link ScalarFunctionsTestBase}. It implements a Virtual Schema dialect that does not use a
  * virtual schema but directly returns the Exasol table.
  */
-@Testcontainers
 public class ScalarFunctionsTestBaseIT extends ScalarFunctionsTestBase
         implements TestSetup, VirtualSchemaTestSetupProvider {
-    @Container
-    @SuppressWarnings("resource") // Will be closed by Testcontainers
+
+    @SuppressWarnings("resource") // Will be closed by stopContainer()
     private static final ExasolContainer<? extends ExasolContainer<?>> CONTAINER = new ExasolContainer<>()
             .withReuse(true);
 
     private static Connection connection;
     private static ExasolObjectFactory exasolObjectFactory;
+
+    @BeforeAll
+    static void startContainer() {
+        CONTAINER.start();
+    }
+
+    @AfterAll
+    static void stopContainer() {
+        CONTAINER.stop();
+    }
 
     @Override
     protected TestSetup getTestSetup() {

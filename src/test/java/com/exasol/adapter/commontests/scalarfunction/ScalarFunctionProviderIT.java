@@ -7,18 +7,24 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Set;
 
-import org.junit.jupiter.api.Test;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.junit.jupiter.api.*;
 
 import com.exasol.containers.ExasolContainer;
 
-@Testcontainers
 class ScalarFunctionProviderIT {
-    @Container
-    @SuppressWarnings("resource") // Will be closed by Testcontainers
+    @SuppressWarnings("resource") // Will be closed by stopContainer()
     private static final ExasolContainer<? extends ExasolContainer<?>> CONTAINER = new ExasolContainer<>()
             .withReuse(true);
+
+    @BeforeAll
+    static void startContainer() {
+        CONTAINER.start();
+    }
+
+    @AfterAll
+    static void stopContainer() {
+        CONTAINER.stop();
+    }
 
     @Test
     void test() throws SQLException {
