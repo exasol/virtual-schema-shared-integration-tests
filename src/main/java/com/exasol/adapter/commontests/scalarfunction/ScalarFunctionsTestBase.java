@@ -47,7 +47,6 @@ public abstract class ScalarFunctionsTestBase {
     private static final String MY_TABLE = "MY_TABLE";
     /**
      * These functions are tested separately in {@link ScalarFunctionsTestBase#testFunctionsWithNoParenthesis(String)}
-     * )}
      */
     private static final Set<String> FUNCTIONS_WITH_NO_PARENTHESIS = Set.of("localtimestamp", "sysdate",
             "current_schema", "current_statement", "current_session", "current_date", "current_user",

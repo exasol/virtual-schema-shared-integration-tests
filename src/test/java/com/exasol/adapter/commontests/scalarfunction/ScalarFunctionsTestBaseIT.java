@@ -4,9 +4,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-
 import com.exasol.adapter.commontests.scalarfunction.virtualschematestsetup.*;
 import com.exasol.adapter.commontests.scalarfunction.virtualschematestsetup.request.Column;
 import com.exasol.adapter.commontests.scalarfunction.virtualschematestsetup.request.TableRequest;
@@ -24,22 +21,12 @@ import com.exasol.dbbuilder.dialects.exasol.ExasolSchema;
 public class ScalarFunctionsTestBaseIT extends ScalarFunctionsTestBase
         implements TestSetup, VirtualSchemaTestSetupProvider {
 
-    @SuppressWarnings("resource") // Will be closed by stopContainer()
+    @SuppressWarnings("resource") // Will be closed by afterAllTeardown()
     private static final ExasolContainer<? extends ExasolContainer<?>> CONTAINER = new ExasolContainer<>()
             .withReuse(true);
 
     private static Connection connection;
     private static ExasolObjectFactory exasolObjectFactory;
-
-    @BeforeAll
-    static void startContainer() {
-        CONTAINER.start();
-    }
-
-    @AfterAll
-    static void stopContainer() {
-        CONTAINER.stop();
-    }
 
     @Override
     protected TestSetup getTestSetup() {
@@ -107,6 +94,7 @@ public class ScalarFunctionsTestBaseIT extends ScalarFunctionsTestBase
 
     @Override
     protected void beforeAllSetup() {
+        CONTAINER.start();
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         connection = CONTAINER.createConnection();
         exasolObjectFactory = new ExasolObjectFactory(connection);
@@ -118,6 +106,8 @@ public class ScalarFunctionsTestBaseIT extends ScalarFunctionsTestBase
             connection.close();
         } catch (final SQLException exception) {
             throw new UncheckedSqlException(exception);
+        } finally {
+            CONTAINER.stop();
         }
     }
 }
