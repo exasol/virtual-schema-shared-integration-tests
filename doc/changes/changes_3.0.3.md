@@ -1,12 +1,10 @@
-# Virtual Schema Shared Integration Tests 3.0.3, released 2026-??-??
+# Virtual Schema Shared Integration Tests 3.0.3, released 2026-07-29
 
-Code name:
+Code name: Improve error handling
 
 ## Summary
 
-## Features
-
-* ISSUE_NUMBER: description
+This release improves error handling and logging to simplify debugging failing tests.
 
 ## Dependency Updates
 
