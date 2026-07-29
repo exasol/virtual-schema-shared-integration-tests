@@ -100,20 +100,24 @@ public class ScalarFunctionsTestBaseIT extends ScalarFunctionsTestBase
         }
 
         @Override
-        public void close() throws SQLException {
+        public void close() {
             this.schema.drop();
         }
     }
 
     @Override
-    protected void beforeAllSetup() throws SQLException {
+    protected void beforeAllSetup() {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         connection = CONTAINER.createConnection();
         exasolObjectFactory = new ExasolObjectFactory(connection);
     }
 
     @Override
-    protected void afterAllTeardown() throws SQLException {
-        connection.close();
+    protected void afterAllTeardown() {
+        try {
+            connection.close();
+        } catch (final SQLException exception) {
+            throw new UncheckedSqlException(exception);
+        }
     }
 }

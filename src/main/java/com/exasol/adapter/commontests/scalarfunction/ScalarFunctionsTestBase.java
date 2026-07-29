@@ -119,7 +119,7 @@ public abstract class ScalarFunctionsTestBase {
 
     @FunctionalInterface
     private interface ExasolExecutable {
-        void runOnExasol(Statement statement) throws SQLException;
+        void runOnExasol(Statement statement);
     }
 
     /**
@@ -162,7 +162,7 @@ public abstract class ScalarFunctionsTestBase {
      */
     @ParameterizedTest
     @MethodSource("getScalarFunctionWithNoParameters")
-    public void testFunctionsWithNoParenthesis(final String function) throws SQLException {
+    public void testFunctionsWithNoParenthesis(final String function) {
         assumeTestNotSkipped(function);
         try (final VirtualSchemaTestSetup virtualSchema = getBooleanVirtualSchema(true)) {
             assertScalarFunctionQuery(virtualSchema, function, table().row(anyOf(instanceOf(Object.class), nullValue()))
@@ -170,8 +170,11 @@ public abstract class ScalarFunctionsTestBase {
         }
     }
 
+    /**
+     * Tests the SYSTIMESTAMP scalar function.
+     */
     @Test
-    public void testSystimestamp() throws SQLException {
+    public void testSystimestamp() {
         assumeTestNotSkipped("SYSTIMESTAMP");
         setSessionTimezone("UTC");
         final Timestamp actualTimestamp = getActualSystimestamp();
@@ -184,12 +187,14 @@ public abstract class ScalarFunctionsTestBase {
         }
     }
 
-    private Timestamp getActualSystimestamp() throws SQLException {
+    private Timestamp getActualSystimestamp() {
         try (final Connection connection = getTestSetup().createExasolConnection();
                 final Statement statement = connection.createStatement();
                 final ResultSet actualResult = statement.executeQuery("SELECT SYSTIMESTAMP FROM DUAL;")) {
             actualResult.next();
             return actualResult.getTimestamp(1);
+        } catch (final SQLException exception) {
+            throw new UncheckedSqlException(exception);
         }
     }
 
@@ -198,7 +203,7 @@ public abstract class ScalarFunctionsTestBase {
      * reason we check here if it produces at least some different results.
      */
     @Test
-    public void testRand() throws SQLException {
+    public void testRand() {
         assumeTestNotSkipped("RAND");
         try (final VirtualSchemaTestSetup virtualSchema = getBooleanVirtualSchema(true)) {
             assertScalarFunctionQuery(virtualSchema, "RAND()",
@@ -206,8 +211,11 @@ public abstract class ScalarFunctionsTestBase {
         }
     }
 
+    /**
+     * Tests the SYS_GUID scalar function.
+     */
     @Test
-    public void testSysGUID() throws SQLException {
+    public void testSysGUID() {
         assumeTestNotSkipped("SYS_GUID");
         try (final VirtualSchemaTestSetup virtualSchema = getBooleanVirtualSchema(true)) {
             assertScalarFunctionQuery(virtualSchema, "SYS_GUID()",
@@ -235,10 +243,16 @@ public abstract class ScalarFunctionsTestBase {
         return buildVirtualSchemaTableWithColumnOfExasolType(DataType.createDecimal(18, 0), valueForSingleRow);
     }
 
+    /**
+     * Tests basic arithmetic scalar functions.
+     *
+     * @param function       function to test
+     * @param operator       arithmetic operator
+     * @param expectedResult expected result
+     */
     @ParameterizedTest
     @CsvSource({ "ADD, +, 4", "SUB, -, 0", "MULT, *, 4", "FLOAT_DIV, /, 1" })
-    public void testSimpleArithmeticFunctions(final String function, final String operator, final int expectedResult)
-            throws SQLException {
+    public void testSimpleArithmeticFunctions(final String function, final String operator, final int expectedResult) {
         assumeTestNotSkipped(function);
         try (final VirtualSchemaTestSetup virtualSchema = getIntegerVirtualSchema(2)) {
             final String scalarFunctionCall = MY_COLUMN + " " + operator + " " + MY_COLUMN;
@@ -247,8 +261,11 @@ public abstract class ScalarFunctionsTestBase {
         }
     }
 
+    /**
+     * Tests the CAST scalar function.
+     */
     @Test
-    public void testCast() throws SQLException {
+    public void testCast() {
         assumeTestNotSkipped("CAST");
         try (final VirtualSchemaTestSetup virtualSchema = getIntegerVirtualSchema(2)) {
             final String scalarFunctionCall = "CAST(" + MY_COLUMN + " AS VARCHAR(254) UTF8)";
@@ -257,9 +274,15 @@ public abstract class ScalarFunctionsTestBase {
         }
     }
 
+    /**
+     * Tests the GREATEST scalar function.
+     *
+     * @param input          input value
+     * @param expectedOutput expected result
+     */
     @ParameterizedTest
     @CsvSource({ "-2, 0", "2, 2" })
-    public void testGreatest(final int input, final int expectedOutput) throws SQLException {
+    public void testGreatest(final int input, final int expectedOutput) {
         assumeTestNotSkipped("GREATEST");
         try (final VirtualSchemaTestSetup virtualSchema = getIntegerVirtualSchema(input)) {
             final String scalarFunctionCall = "GREATEST(" + MY_COLUMN + ", 0)";
@@ -272,9 +295,15 @@ public abstract class ScalarFunctionsTestBase {
         return buildVirtualSchemaTableWithColumnOfExasolType(DataType.createDouble(), valueForSingleRow);
     }
 
+    /**
+     * Tests the ROUND scalar function.
+     *
+     * @param input          input value
+     * @param expectedOutput expected result
+     */
     @ParameterizedTest
     @CsvSource({ "0.1, 0", "0.5, 1", "0.9, 1" })
-    public void testRound(final double input, final double expectedOutput) throws SQLException {
+    public void testRound(final double input, final double expectedOutput) {
         assumeTestNotSkipped("ROUND");
         try (final VirtualSchemaTestSetup virtualSchema = getDoubleVirtualSchema(input)) {
             final String scalarFunctionCall = "ROUND(" + MY_COLUMN + ")";
@@ -287,9 +316,14 @@ public abstract class ScalarFunctionsTestBase {
         return buildVirtualSchemaTableWithColumnOfExasolType(DataType.createBool(), valueForSingleRow);
     }
 
+    /**
+     * Tests the NEG scalar function.
+     *
+     * @param input input value
+     */
     @ParameterizedTest
     @ValueSource(booleans = { true, false })
-    public void testNeg(final boolean input) throws SQLException {
+    public void testNeg(final boolean input) {
         assumeTestNotSkipped("NEG");
         try (final VirtualSchemaTestSetup virtualSchema = getBooleanVirtualSchema(input)) {
             final String scalarFunctionCall = "NOT " + MY_COLUMN;
@@ -304,12 +338,13 @@ public abstract class ScalarFunctionsTestBase {
 
     /**
      * Test the SQL CASE statement.
+     * <p>
+     * This test does some unnecessary math on a column of the virtual schema to make sure that this case statement is
+     * sent to the virtual schema if possible and not evaluated before. If, however, the virtual schema does not have
+     * the FLOAT_DIV or ADD capability this does not work.
      *
      * @param input          input value
      * @param expectedResult expected output
-     * @implNote This test does some unnecessary math on a column of the virtual schema to make sure that this case
-     *           statement is sent to the virtual schema if possible and not evaluated before. If, however, the virtual
-     *           schema does not have the FLOAT_DIV or ADD capability this does not work.
      */
     @ParameterizedTest
     @CsvSource({ //
@@ -317,7 +352,7 @@ public abstract class ScalarFunctionsTestBase {
             "b, 2", //
             "c, 3" //
     })
-    public void testCase(final String input, final int expectedResult) throws SQLException {
+    public void testCase(final String input, final int expectedResult) {
         assumeTestNotSkipped("CASE");
         try (final VirtualSchemaTestSetup virtualSchema = getStringVirtualSchema(input)) {
             final String scalarFunctionCall = "CASE " + MY_COLUMN + " WHEN 'a' THEN 1 WHEN 'b' THEN 2 ELSE 3 END";
@@ -326,8 +361,13 @@ public abstract class ScalarFunctionsTestBase {
         }
     }
 
+    /**
+     * Tests the CONVERT_TZ scalar function.
+     *
+     * @throws ParseException if the expected timestamp cannot be parsed
+     */
     @Test
-    public void testConvertTz() throws SQLException, ParseException {
+    public void testConvertTz() throws ParseException {
         assumeTestNotSkipped("CONVERT_TZ");
         final Timestamp expected = new Timestamp(
                 new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2012-03-25 04:30:00").getTime());
@@ -339,8 +379,13 @@ public abstract class ScalarFunctionsTestBase {
         }
     }
 
+    /**
+     * Tests the DATE_TRUNC scalar function.
+     *
+     * @throws ParseException if the expected timestamp cannot be parsed
+     */
     @Test
-    public void testDateTrunc() throws SQLException, ParseException {
+    public void testDateTrunc() throws ParseException {
         assumeTestNotSkipped("DATE_TRUNC");
         final Timestamp expectedResult = new Timestamp(
                 new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2006-12-01 00:00:00.0").getTime());
@@ -351,8 +396,11 @@ public abstract class ScalarFunctionsTestBase {
         }
     }
 
+    /**
+     * Tests the NUMTODSINTERVAL scalar function.
+     */
     @Test
-    public void testNumToDsInterval() throws SQLException {
+    public void testNumToDsInterval() {
         assumeTestNotSkipped("NUMTODSINTERVAL");
         try (final VirtualSchemaTestSetup virtualSchema = getStringVirtualSchema("HOUR")) {
             final String scalarFunctionCall = "NUMTODSINTERVAL(3.2, " + MY_COLUMN + ")";
@@ -361,8 +409,11 @@ public abstract class ScalarFunctionsTestBase {
         }
     }
 
+    /**
+     * Tests the NUMTOYMINTERVAL scalar function.
+     */
     @Test
-    public void testNumToYmInterval() throws SQLException {
+    public void testNumToYmInterval() {
         assumeTestNotSkipped("NUMTOYMINTERVAL");
         try (final VirtualSchemaTestSetup virtualSchema = getStringVirtualSchema("YEAR")) {
             final String scalarFunctionCall = "NUMTOYMINTERVAL(3.5, " + MY_COLUMN + ")";
@@ -371,8 +422,11 @@ public abstract class ScalarFunctionsTestBase {
         }
     }
 
+    /**
+     * Tests the TO_YMINTERVAL scalar function.
+     */
     @Test
-    public void testToYmInterval() throws SQLException {
+    public void testToYmInterval() {
         assumeTestNotSkipped("TO_YMINTERVAL");
         try (final VirtualSchemaTestSetup virtualSchema = getStringVirtualSchema("3-11")) {
             final String scalarFunctionCall = "TO_YMINTERVAL(" + MY_COLUMN + ")";
@@ -381,8 +435,11 @@ public abstract class ScalarFunctionsTestBase {
         }
     }
 
+    /**
+     * Tests the TO_DSINTERVAL scalar function.
+     */
     @Test
-    public void testToDsInterval() throws SQLException {
+    public void testToDsInterval() {
         assumeTestNotSkipped("TO_DSINTERVAL");
         try (final VirtualSchemaTestSetup virtualSchema = getStringVirtualSchema("3 10:59:59.123")) {
             final String scalarFunctionCall = "TO_DSINTERVAL(" + MY_COLUMN + ")";
@@ -391,8 +448,11 @@ public abstract class ScalarFunctionsTestBase {
         }
     }
 
+    /**
+     * Tests the JSON_VALUE scalar function.
+     */
     @Test
-    public void testJsonValue() throws SQLException {
+    public void testJsonValue() {
         assumeTestNotSkipped("JSON_VALUE");
         try (final VirtualSchemaTestSetup virtualSchema = getStringVirtualSchema("{\"name\" : \"Test\"}")) {
             final String scalarFunctionCall = "JSON_VALUE(" + MY_COLUMN + ", '$.name')";
@@ -401,8 +461,11 @@ public abstract class ScalarFunctionsTestBase {
         }
     }
 
+    /**
+     * Tests the POSITION scalar function.
+     */
     @Test
-    public void testPosition() throws SQLException {
+    public void testPosition() {
         assumeTestNotSkipped("position");
         try (final VirtualSchemaTestSetup virtualSchema = getStringVirtualSchema("my long string")) {
             final String scalarFunctionCall = "POSITION('long' IN " + MY_COLUMN + ")";
@@ -416,8 +479,11 @@ public abstract class ScalarFunctionsTestBase {
                 valueForSingleRow);
     }
 
+    /**
+     * Tests the EXTRACT scalar function.
+     */
     @Test
-    public void testExtract() throws SQLException {
+    public void testExtract() {
         assumeTestNotSkipped("EXTRACT");
         setSessionTimezone("UTC");
         try (final VirtualSchemaTestSetup virtualSchema = getTimestampVirtualSchema(new Timestamp(1000))) {
@@ -427,6 +493,12 @@ public abstract class ScalarFunctionsTestBase {
         }
     }
 
+    /**
+     * Tests the POSIX_TIME scalar function in different time zones.
+     *
+     * @param timeZone       time zone to test
+     * @param expectedResult expected result
+     */
     @ParameterizedTest
     @CsvSource({ //
             "UTC, 1", //
@@ -435,7 +507,7 @@ public abstract class ScalarFunctionsTestBase {
     public void testPosixTime(final String timeZone, final long expectedResult) {
         assumeTestNotSkipped("POSIX_TIME");
         runOnExasol(statement -> {
-            statement.executeUpdate("ALTER SESSION SET TIME_ZONE='" + timeZone + "';");
+            runStatement(statement, "ALTER SESSION SET TIME_ZONE='" + timeZone + "';");
             try (final VirtualSchemaTestSetup virtualSchema = getTimestampVirtualSchema(new Timestamp(1000))) {
                 final String scalarFunctionCall = "POSIX_TIME(" + MY_COLUMN + ")";
                 assertScalarFunctionQuery(virtualSchema, scalarFunctionCall,
@@ -445,11 +517,19 @@ public abstract class ScalarFunctionsTestBase {
     }
 
     private void setSessionTimezone(final String timeZone) {
-        runOnExasol(statement -> statement.executeUpdate("ALTER SESSION SET TIME_ZONE='" + timeZone + "';"));
+        runOnExasol(statement -> runStatement(statement, "ALTER SESSION SET TIME_ZONE='" + timeZone + "';"));
+    }
+
+    private static void runStatement(final Statement statement, final String sql) {
+        try {
+            statement.executeUpdate(sql);
+        } catch (final SQLException exception) {
+            throw new UncheckedSqlException("Failed to execute statement: '" + sql + "': " + exception.getMessage(), exception);
+        }
     }
 
     /**
-     * 
+     *
      * The testScalarFunctions test automatically finds parameter combinations by permuting a set of different values.
      * Then it verifies that on of the parameter combinations that did not cause an exception in on a regular Exasol
      * table, succeeds on the virtual schema table. In addition, this test asserts that all queries that succeed on the
@@ -477,13 +557,13 @@ public abstract class ScalarFunctionsTestBase {
 
     @BeforeAll
     @SuppressWarnings("java:S2077") // No risk of SQL injection since it's only used in tests.
-    void beforeAllTests() throws SQLException {
+    void beforeAllTests() {
         beforeAllSetup();
         this.virtualSchemaTestSetup = createVirtualSchemaTestSetup();
         runOnExasol(statement -> {
-            statement.executeUpdate("CREATE SCHEMA " + LOCAL_COPY_SCHEMA);
+            runStatement(statement, "CREATE SCHEMA " + LOCAL_COPY_SCHEMA);
             final String testTable = this.virtualSchemaTestSetup.getFullyQualifiedName() + ".\"" + MY_TABLE + "\"";
-            statement.executeUpdate("CREATE TABLE " + LOCAL_COPY_FULL_TABLE_NAME + " as SELECT * FROM " + testTable);
+            runStatement(statement, "CREATE TABLE " + LOCAL_COPY_FULL_TABLE_NAME + " as SELECT * FROM " + testTable);
             this.columnsWithType = getColumnsOfTable(LOCAL_COPY_FULL_TABLE_NAME);
             this.parameterCache = new ScalarFunctionsParameterCache();
             this.parameterFinder = new ScalarFunctionParameterFinder(this.columnsWithType,
@@ -494,24 +574,20 @@ public abstract class ScalarFunctionsTestBase {
 
     /**
      * Declare necessary setup needed to be done in the derived class in the @BeforeAll in this method.
-     * 
-     * @throws SQLException if underlying setup fails
      */
-    protected abstract void beforeAllSetup() throws SQLException;
+    protected abstract void beforeAllSetup();
 
     @AfterAll
-    void afterAllTests() throws SQLException {
-        runOnExasol(statement -> statement.executeUpdate("DROP SCHEMA " + LOCAL_COPY_SCHEMA + " CASCADE"));
+    void afterAllTests() {
+        runOnExasol(statement -> runStatement(statement, "DROP SCHEMA " + LOCAL_COPY_SCHEMA + " CASCADE"));
         this.virtualSchemaTestSetup.close();
         afterAllTeardown();
     }
 
     /**
      * Declare necessary teardown needed to be done in the derived class in the @AfterAll in this method.
-     * 
-     * @throws SQLException if underlying teardown fails
      */
-    protected abstract void afterAllTeardown() throws SQLException;
+    protected abstract void afterAllTeardown();
 
     private List<String> getColumnsOfTable(final String tableName) {
         final List<String> names = new ArrayList<>();
@@ -522,6 +598,8 @@ public abstract class ScalarFunctionsTestBase {
                 for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
                     names.add("\"" + metaData.getColumnName(columnIndex) + "\"");
                 }
+            } catch (final SQLException exception) {
+                throw new UncheckedSqlException(exception);
             }
         });
         return names;
