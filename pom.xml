@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>virtual-schema-shared-integration-tests</artifactId>
-    <version>3.0.2</version>
+    <version>3.0.3</version>
     <name>virtual-schema-shared-integration-tests</name>
     <description>Abstract integration tests for virtual schemas</description>
     <url>https://github.com/exasol/virtual-schema-shared-integration-tests/</url>
@@ -49,7 +49,7 @@
         <dependency>
             <groupId>com.exasol</groupId>
             <artifactId>exasol-testcontainers</artifactId>
-            <version>7.1.5</version>
+            <version>7.1.7</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -100,7 +100,7 @@
             <plugin>
                 <groupId>com.exasol</groupId>
                 <artifactId>project-keeper-maven-plugin</artifactId>
-                <version>5.1.0</version>
+                <version>5.2.3</version>
                 <executions>
                     <execution>
                         <goals>
