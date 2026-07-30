@@ -1,4 +1,4 @@
-# Virtual Schema Shared Integration Tests 3.0.3, released 2026-07-29
+# Virtual Schema Shared Integration Tests 3.0.3, released 2026-07-30
 
 Code name: Improve error handling
 
