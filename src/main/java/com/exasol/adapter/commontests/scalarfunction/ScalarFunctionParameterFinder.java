@@ -3,7 +3,6 @@ package com.exasol.adapter.commontests.scalarfunction;
 import java.sql.*;
 import java.util.*;
 import java.util.function.Function;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -26,7 +25,7 @@ public class ScalarFunctionParameterFinder {
 
     /**
      * Create a new instance of {@link ScalarFunctionParameterFinder}.
-     * 
+     *
      * @param availableColumns  list of available columns in the test table
      * @param localQueryBuilder query builder that builds queries on a regular Exasol table
      * @param parameterCache    disc cache for the parameters
@@ -55,11 +54,11 @@ public class ScalarFunctionParameterFinder {
 
     private static List<String> generateCombination(final Collection<String> availableColumns,
             final List<String> previousIterationParameters) {
-        return previousIterationParameters.stream()//
+        return previousIterationParameters.stream()
                 .flatMap(addPermutation(availableColumns)).collect(Collectors.toList());
     }
 
-    private static Function<String, Stream<? extends String>> addPermutation(
+    private static Function<String, Stream<String>> addPermutation(
             final Collection<String> availableColumns) {
         return smallerCombination -> availableColumns.stream().map(literal -> join(smallerCombination, literal));
     }
@@ -78,19 +77,24 @@ public class ScalarFunctionParameterFinder {
      * If the disc cache contains combinations for this scalar function, this method only returns these. This is an
      * performance optimization, since the cache only contains the runs, that lead to a success on the last run.
      * </p>
-     * 
+     *
      * @param function  scalar function
      * @param statement connection to the exasol database
      * @return list of successful executions
      */
     public List<ScalarFunctionLocalRun> findOrGetFittingParameters(final String function, final Statement statement) {
         if (this.parameterCache.hasParametersForFunction(function)) {
-            LOGGER.log(Level.FINE, "Using parameters from parameter cache for function {0}.", function);
-            return findFittingParameters(function,
+            final List<ScalarFunctionLocalRun> fittingParameters = findFittingParameters(function,
                     this.parameterCache.getFunctionsValidParameterCombinations(function).stream(), statement);
+            LOGGER.fine(() -> String.format("Using %d parameters from parameter cache for function '%s'",
+                    fittingParameters.size(), function));
+            return fittingParameters;
         } else {
-            LOGGER.log(Level.FINE, "Using generated parameters for function {0}.", function);
-            return findFittingParameters(function, statement);
+            final List<ScalarFunctionLocalRun> fittingParameters = findFittingParameters(function, statement);
+            LOGGER.fine(
+                    () -> String.format("Using %d generated parameters for function '%s'", fittingParameters.size(),
+                            function));
+            return fittingParameters;
         }
     }
 

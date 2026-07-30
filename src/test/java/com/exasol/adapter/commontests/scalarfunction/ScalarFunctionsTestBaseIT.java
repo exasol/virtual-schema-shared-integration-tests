@@ -4,9 +4,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-
 import com.exasol.adapter.commontests.scalarfunction.virtualschematestsetup.*;
 import com.exasol.adapter.commontests.scalarfunction.virtualschematestsetup.request.Column;
 import com.exasol.adapter.commontests.scalarfunction.virtualschematestsetup.request.TableRequest;
@@ -21,10 +18,10 @@ import com.exasol.dbbuilder.dialects.exasol.ExasolSchema;
  * This class is a test for {@link ScalarFunctionsTestBase}. It implements a Virtual Schema dialect that does not use a
  * virtual schema but directly returns the Exasol table.
  */
-@Testcontainers
 public class ScalarFunctionsTestBaseIT extends ScalarFunctionsTestBase
         implements TestSetup, VirtualSchemaTestSetupProvider {
-    @Container
+
+    @SuppressWarnings("resource") // Will be closed by afterAllTeardown()
     private static final ExasolContainer<? extends ExasolContainer<?>> CONTAINER = new ExasolContainer<>()
             .withReuse(true);
 
@@ -90,20 +87,27 @@ public class ScalarFunctionsTestBaseIT extends ScalarFunctionsTestBase
         }
 
         @Override
-        public void close() throws SQLException {
+        public void close() {
             this.schema.drop();
         }
     }
 
     @Override
-    protected void beforeAllSetup() throws SQLException {
+    protected void beforeAllSetup() {
+        CONTAINER.start();
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         connection = CONTAINER.createConnection();
         exasolObjectFactory = new ExasolObjectFactory(connection);
     }
 
     @Override
-    protected void afterAllTeardown() throws SQLException {
-        connection.close();
+    protected void afterAllTeardown() {
+        try {
+            connection.close();
+        } catch (final SQLException exception) {
+            throw new UncheckedSqlException(exception);
+        } finally {
+            CONTAINER.stop();
+        }
     }
 }

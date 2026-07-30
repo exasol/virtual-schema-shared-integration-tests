@@ -4,7 +4,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * This class is a test for {@link ScalarFunctionsTestBase} that skips all tests.
+ * This class is a test for {@link ScalarFunctionsTestBase} that skips all tests but {@code abs}. Skipping all functions would cause the test to fail.
  */
 public class ScalarFunctionsTestBaseDeactivatedIT extends ScalarFunctionsTestBaseIT {
     @Override
@@ -27,7 +27,9 @@ public class ScalarFunctionsTestBaseDeactivatedIT extends ScalarFunctionsTestBas
                 "rpad", "rtrimsecondseconds_between", "sign", "sin", "sinh", "soundex", "space", "sqrt", "substr",
                 "substring", "tan", "tanh", "to_char", "to_date", "to_number", "to_timestamp", "translate", "trimtrunc",
                 "truncate", "ucase", "unicode", "unicodechr", "upper", "user", "week", "year", "years_between", "trim",
-                "trunc", "power", "ltrim", "second", "month", "radians", "rtrim", "seconds_between").stream()
+                "trunc", "power", "ltrim", "second", "month", "radians", "rtrim", "seconds_between",
+
+                "regexp_count", "dayofweek").stream()
                 .map(String::toLowerCase).collect(Collectors.toSet());
     }
 }
