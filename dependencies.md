@@ -56,7 +56,7 @@
 
 [0]: https://github.com/exasol/hamcrest-resultset-matcher/
 [1]: https://github.com/exasol/hamcrest-resultset-matcher/blob/main/LICENSE
-[2]: https://bitbucket.org/snakeyaml/snakeyaml
+[2]: https://codeberg.org/snakeyaml/snakeyaml
 [3]: http://www.apache.org/licenses/LICENSE-2.0.txt
 [4]: https://github.com/exasol/error-reporting-java/
 [5]: https://github.com/exasol/error-reporting-java/blob/main/LICENSE
