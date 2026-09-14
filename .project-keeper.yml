@@ -8,5 +8,6 @@ build:
   runnerOs: ubuntu-latest
   freeDiskSpace: false
   exasolDbVersions:
-    - "2026.1.0" # Latest version
-    - "2025.1.13" # Latest LTS version
+    - "2026.1.1" # Latest version
+    - "2025.1.16" # Latest LTS version
+    - "8.29.13" # Latest 8.x LTS version
