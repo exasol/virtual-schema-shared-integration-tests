@@ -75,7 +75,7 @@
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
             <!-- Versions >= 10.16.x require Java 17. Do not upgrade while using Java 11. -->
-            <version>10.17.1.0</version>
+            <version>10.15.2.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
