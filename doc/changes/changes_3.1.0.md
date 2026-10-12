@@ -1,12 +1,18 @@
 # Virtual Schema Shared Integration Tests 3.1.0, released 2026-??-??
 
-Code name:
+Code name: Add Capabilities
 
 ## Summary
 
+The scalar-function integration tests now use the additional SQL capabilities provided by `virtual-schema-common-java:18.1.0`.
+
+When upgrading to this release, regenerate the scalar-function parameter cache in `src/test/resources/integration/scalarFunctionsParameterCache.yml`.
+
+The new aggregate functions are not covered by this shared test suite, which currently tests scalar functions only.
+
 ## Features
 
-* ISSUE_NUMBER: description
+* #52: Upgraded `virtual-schema-common-java` to `18.1.0` for additional SQL capabilities.
 
 ## Dependency Updates
 
