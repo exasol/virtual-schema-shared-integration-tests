@@ -635,7 +635,7 @@ public abstract class ScalarFunctionsTestBase {
      * @param function function to test
      */
     @Tag("WithAutomaticParameterDiscovery")
-    @ParameterizedTest
+    @ParameterizedTest(name = "testScalarFunctions({0})")
     @MethodSource("getScalarFunctions")
     public void testScalarFunctions(final String function) {
         runOnExasol(statement -> {
