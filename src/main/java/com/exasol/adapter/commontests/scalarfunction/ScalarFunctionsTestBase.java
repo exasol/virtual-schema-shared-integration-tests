@@ -643,7 +643,8 @@ public abstract class ScalarFunctionsTestBase {
                     .findOrGetFittingParameters(function, statement);
             if (successfulScalarFunctionLocalRuns.isEmpty()) {
                 throw new IllegalStateException(ExaError.messageBuilder("E-VSSIT-2")
-                        .message("None of the parameter combinations have lead to a successful run.").toString());
+                        .message("None of the parameter combinations for scalar function {{function name}} have lead to a successful run.", function)
+                        .toString());
             } else {
                 final List<ScalarFunctionLocalRun> filteredRuns = successfulScalarFunctionLocalRuns.stream()
                         .filter(run -> !isTestDisabledFor(getExcludeKey(function, run))).collect(Collectors.toList());
