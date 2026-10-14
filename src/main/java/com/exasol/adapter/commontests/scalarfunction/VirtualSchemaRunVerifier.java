@@ -100,7 +100,7 @@ public class VirtualSchemaRunVerifier {
             LOGGER.log(Level.SEVERE, ExaError.messageBuilder("E-VSSIT-6")
                     .message("Different output for query {{query}}:\n{{error}}\n", virtualSchemaQuery,
                             assertionError.getMessage())
-                    .mitigation("You can exclude combination by adding {{exclude}} to your dialect specific excludes.",
+                    .mitigation("You can exclude this combination by adding {{exclude}} to your dialect specific excludes.",
                             ScalarFunctionsTestBase.getExcludeKey(function, scalarFunctionLocalRun))
                     .toString());
             return false;
