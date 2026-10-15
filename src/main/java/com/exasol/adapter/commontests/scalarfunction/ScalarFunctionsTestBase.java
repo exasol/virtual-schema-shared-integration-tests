@@ -579,7 +579,9 @@ public abstract class ScalarFunctionsTestBase {
     @AfterAll
     void afterAllTests() {
         runOnExasol(statement -> runStatement(statement, "DROP SCHEMA " + LOCAL_COPY_SCHEMA + " CASCADE"));
-        this.virtualSchemaTestSetup.close();
+        if (this.virtualSchemaTestSetup != null) {
+            this.virtualSchemaTestSetup.close();
+        }
         afterAllTeardown();
     }
 
