@@ -27,7 +27,7 @@ You can use these tests by subclassing `ScalarFunctionsTestBase` in your project
 
 For some dialects some tests might not be relevant or applicable. That's why this test suite allows you to exclude certain tests:
 
-```
+```java
 @Override
 public Set<String> getDialectSpecificExcludes(){
     return Set.of("neg");

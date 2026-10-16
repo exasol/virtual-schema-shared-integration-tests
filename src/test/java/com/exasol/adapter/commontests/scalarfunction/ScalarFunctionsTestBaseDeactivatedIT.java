@@ -29,7 +29,11 @@ public class ScalarFunctionsTestBaseDeactivatedIT extends ScalarFunctionsTestBas
                 "truncate", "ucase", "unicode", "unicodechr", "upper", "user", "week", "year", "years_between", "trim",
                 "trunc", "power", "ltrim", "second", "month", "radians", "rtrim", "seconds_between",
 
-                "regexp_count", "dayofweek").stream()
+                "regexp_count", "dayofweek",
+
+                "unsupported",
+
+                "last_day").stream()
                 .map(String::toLowerCase).collect(Collectors.toSet());
     }
 }

@@ -1044,6 +1044,7 @@ instr: ['"DOUBLE_C0", "DOUBLE_C0"', '"DOUBLE_C0", "DECIMAL18__0_C1"', '"DOUBLE_C
     "BOOLEAN_C3"']
 iproc: ['']
 is_number: ['"DOUBLE_C0"', '"DECIMAL18__0_C1"', '"DECIMAL18__3_C2"', '"VARCHAR2_UTF8_C4"']
+last_day: ['"DATE_C5"', '"TIMESTAMP_C6"']
 lcase: ['"DOUBLE_C0"', '"DECIMAL18__0_C1"', '"DECIMAL18__3_C2"', '"BOOLEAN_C3"', '"VARCHAR2_UTF8_C4"',
   '"DATE_C5"', '"TIMESTAMP_C6"']
 least: ['"DOUBLE_C0"', '"DECIMAL18__0_C1"', '"DECIMAL18__3_C2"', '"VARCHAR2_UTF8_C4"',

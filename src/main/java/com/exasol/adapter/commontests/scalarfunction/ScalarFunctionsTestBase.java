@@ -547,7 +547,7 @@ public abstract class ScalarFunctionsTestBase {
     private final List<DataTypeWithExampleValue> dataTypeWithExampleValues = List.of(
             new DataTypeWithExampleValue(DataType.createDouble(), 0.5),
             new DataTypeWithExampleValue(DataType.createDecimal(18, 0), 2),
-            new DataTypeWithExampleValue(DataType.createDecimal(18, 3), 3.141),
+            new DataTypeWithExampleValue(DataType.createDecimal(18, 3), 4.321),
             new DataTypeWithExampleValue(DataType.createBool(), true),
             new DataTypeWithExampleValue(DataType.createVarChar(2, DataType.ExaCharset.UTF8), "a"),
             new DataTypeWithExampleValue(DataType.createDate(), new Date(1000)),
@@ -579,7 +579,9 @@ public abstract class ScalarFunctionsTestBase {
     @AfterAll
     void afterAllTests() {
         runOnExasol(statement -> runStatement(statement, "DROP SCHEMA " + LOCAL_COPY_SCHEMA + " CASCADE"));
-        this.virtualSchemaTestSetup.close();
+        if (this.virtualSchemaTestSetup != null) {
+            this.virtualSchemaTestSetup.close();
+        }
         afterAllTeardown();
     }
 
@@ -635,7 +637,7 @@ public abstract class ScalarFunctionsTestBase {
      * @param function function to test
      */
     @Tag("WithAutomaticParameterDiscovery")
-    @ParameterizedTest
+    @ParameterizedTest(name = "testScalarFunctions({0})")
     @MethodSource("getScalarFunctions")
     public void testScalarFunctions(final String function) {
         runOnExasol(statement -> {
@@ -643,7 +645,8 @@ public abstract class ScalarFunctionsTestBase {
                     .findOrGetFittingParameters(function, statement);
             if (successfulScalarFunctionLocalRuns.isEmpty()) {
                 throw new IllegalStateException(ExaError.messageBuilder("E-VSSIT-2")
-                        .message("None of the parameter combinations have lead to a successful run.").toString());
+                        .message("None of the parameter combinations for scalar function {{function name}} have led to a successful run.", function)
+                        .toString());
             } else {
                 final List<ScalarFunctionLocalRun> filteredRuns = successfulScalarFunctionLocalRuns.stream()
                         .filter(run -> !isTestDisabledFor(getExcludeKey(function, run))).collect(Collectors.toList());
