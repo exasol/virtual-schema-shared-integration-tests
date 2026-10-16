@@ -38,7 +38,9 @@ import com.exasol.matcher.TypeMatchMode;
  * {@code -Djunit.jupiter.execution.parallel.enabled=true} to your junit JVM.
  * </p>
  */
-@SuppressWarnings("java:S5786") // class is public since it is an abstract test
+@SuppressWarnings({ "java:S5786" // class is public since it is an abstract test
+        , "java:S2143" // Need to use java.sql.Date & Timestamp for testing, cannot use java.time
+})
 @Execution(value = ExecutionMode.CONCURRENT)
 @TestInstance(PER_CLASS)
 public abstract class ScalarFunctionsTestBase {
@@ -547,7 +549,7 @@ public abstract class ScalarFunctionsTestBase {
     private final List<DataTypeWithExampleValue> dataTypeWithExampleValues = List.of(
             new DataTypeWithExampleValue(DataType.createDouble(), 0.5),
             new DataTypeWithExampleValue(DataType.createDecimal(18, 0), 2),
-            new DataTypeWithExampleValue(DataType.createDecimal(18, 3), 3.141),
+            new DataTypeWithExampleValue(DataType.createDecimal(18, 3), 4.321),
             new DataTypeWithExampleValue(DataType.createBool(), true),
             new DataTypeWithExampleValue(DataType.createVarChar(2, DataType.ExaCharset.UTF8), "a"),
             new DataTypeWithExampleValue(DataType.createDate(), new Date(1000)),
