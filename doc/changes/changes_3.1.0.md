@@ -1,4 +1,4 @@
-# Virtual Schema Shared Integration Tests 3.1.0, released 2026-??-??
+# Virtual Schema Shared Integration Tests 3.1.0, released 2026-10-16
 
 Code name: Add Capabilities
 
@@ -6,9 +6,9 @@ Code name: Add Capabilities
 
 The scalar-function integration tests now use the additional SQL capabilities provided by `virtual-schema-common-java:18.1.0`.
 
-When upgrading to this release, regenerate the scalar-function parameter cache in `src/test/resources/integration/scalarFunctionsParameterCache.yml`.
+When upgrading to this release, regenerate the scalar-function parameter cache in `src/test/resources/integration/scalarFunctionsParameterCache.yml` by running the integration tests locally. You might want to mark this file as generated.
 
-The new aggregate functions are not covered by this shared test suite, which currently tests scalar functions only.
+The new aggregate functions are not covered by this shared test suite, which currently tests scalar functions only. Tests for aggregate functions will be added in [#53](https://github.com/exasol/virtual-schema-shared-integration-tests/issues/53).
 
 ## Features
 
