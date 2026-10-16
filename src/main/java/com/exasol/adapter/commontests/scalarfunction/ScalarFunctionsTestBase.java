@@ -645,7 +645,7 @@ public abstract class ScalarFunctionsTestBase {
                     .findOrGetFittingParameters(function, statement);
             if (successfulScalarFunctionLocalRuns.isEmpty()) {
                 throw new IllegalStateException(ExaError.messageBuilder("E-VSSIT-2")
-                        .message("None of the parameter combinations for scalar function {{function name}} have lead to a successful run.", function)
+                        .message("None of the parameter combinations for scalar function {{function name}} have led to a successful run.", function)
                         .toString());
             } else {
                 final List<ScalarFunctionLocalRun> filteredRuns = successfulScalarFunctionLocalRuns.stream()
