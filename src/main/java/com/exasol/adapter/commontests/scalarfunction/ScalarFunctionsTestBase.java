@@ -38,9 +38,7 @@ import com.exasol.matcher.TypeMatchMode;
  * {@code -Djunit.jupiter.execution.parallel.enabled=true} to your junit JVM.
  * </p>
  */
-@SuppressWarnings({ "java:S5786" // class is public since it is an abstract test
-        , "java:S2143" // Need to use java.sql.Date & Timestamp for testing, cannot use java.time
-})
+@SuppressWarnings("java:S5786") // class is public since it is an abstract test
 @Execution(value = ExecutionMode.CONCURRENT)
 @TestInstance(PER_CLASS)
 public abstract class ScalarFunctionsTestBase {
